@@ -15,11 +15,11 @@ function capitalizeFirstAndLastWord(str) {
   words[0] = words[0][0].toUpperCase() + words[0].slice(1);
 
   const lastIndex = words.length - 1;
-  words[lastIndex] = words[lastIndex][0].toUpperCase() + words[lastIndex].slice(1);
+  words[lastIndex] =
+    words[lastIndex][0].toUpperCase() + words[lastIndex].slice(1);
 
   return words.join(" ");
 }
-
 
 export async function register(req, res) {
   try {
@@ -52,7 +52,6 @@ export async function register(req, res) {
     res.status(500).json({ message: err.message });
   }
 }
-
 
 export async function login(req, res) {
   try {
@@ -130,5 +129,28 @@ export async function uploadImage(req, res) {
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+}
+
+export async function getUserById(req, res) {
+  try {
+    let { id } = req.params;
+    // console.log("Received id:", id); // check console me aa raha?
+
+    let user = await userModel.findById(id)
+    .select("-password")
+    .populate("request")
+    .populate("fulfilledRequests");
+      if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({
+      message: "User fetched successfully",
+      user: user,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: err.message });
   }
 }

@@ -1,4 +1,5 @@
 import { format } from "date-fns";
+import { Link } from "react-router-dom";
 
 function HomeRequestCard({ requests }) {
   return (
@@ -28,7 +29,10 @@ function HomeRequestCard({ requests }) {
               </div>
 
               <div className="flex items-center justify-between mt-4">
-                <div className="flex items-center gap-3">
+                <Link
+                  to={`/user/${request.requester._id}`}
+                  className="flex items-center gap-3"
+                >
                   <img
                     src={`http://localhost:3000/images/uploads/${request.requester.profilepic}`}
                     alt="Profile"
@@ -42,7 +46,7 @@ function HomeRequestCard({ requests }) {
                       {format(new Date(request.createdAt), "dd MMM yyyy")}
                     </p>
                   </div>
-                </div>
+                </Link>
 
                 <div
                   className={`text-xs font-semibold px-2.5 py-1 rounded-full ${

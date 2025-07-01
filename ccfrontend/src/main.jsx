@@ -9,6 +9,7 @@ import Register from "./Pages/Register";
 import Profile from "./Pages/Profile";
 import MarketPlace from "./Pages/MarketPlace";
 import ProtectedRoute from "./components/ProtectedRoute";
+import UserProfile from "./Pages/UserProfile";
 
 const appRoutes = createBrowserRouter([
   {
@@ -42,6 +43,14 @@ const appRoutes = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      {
+        path: "user/:id",
+        element: (
+          <ProtectedRoute>
+            <UserProfile />
+          </ProtectedRoute>
+        ),
+      },      
     ],
   },
 ]);

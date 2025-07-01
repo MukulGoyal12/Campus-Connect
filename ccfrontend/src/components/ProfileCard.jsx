@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState, useRef } from "react";
 import { FiCamera, FiX } from "react-icons/fi";
 
-const ProfileCard = ({ user, fetchUser }) => {
+const ProfileCard = ({ user, fetchUser, showChangePhoto }) => {
   const fileInputRef = useRef(null);
   const [file, setFile] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -46,22 +46,30 @@ const ProfileCard = ({ user, fetchUser }) => {
         </div>
 
         <div>
-          <h2 className="text-2xl font-bold text-gray-800">{user?.user?.name}</h2>
+          <h2 className="text-2xl font-bold text-gray-800">
+            {user?.user?.name}
+          </h2>
           <p className="text-gray-500">{user?.user?.email}</p>
           <div className="flex flex-wrap justify-center gap-4 mt-3 text-sm text-gray-600">
             <span>🎓 Year: {user?.user?.year}</span>
-            <span>🏠 {user?.user?.hosteller ? "Hosteller" : "Day Scholar"}</span>
+            <span>
+              🏠 {user?.user?.hosteller ? "Hosteller" : "Day Scholar"}
+            </span>
           </div>
         </div>
 
         <div>
-          <button
-            onClick={handleChangePhotoClick}
-            className="flex items-center space-x-1 text-blue-600 font-medium hover:underline"
-          >
-            <FiCamera className="text-xl" />
-            <span>Change Photo</span>
-          </button>
+          {showChangePhoto && (
+            <div>
+              <button
+                onClick={handleChangePhotoClick}
+                className="flex items-center space-x-1 text-blue-600 font-medium hover:underline"
+              >
+                <FiCamera className="text-xl" />
+                <span>Change Photo</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
