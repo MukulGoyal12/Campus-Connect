@@ -1,0 +1,90 @@
+import { Link, useNavigate } from "react-router-dom";
+import { FaGraduationCap, FaHome, FaSignOutAlt, FaShoppingCart } from "react-icons/fa";
+import { useState, useEffect } from "react";
+import axios from "axios";
+
+const Header = () => {
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+
+  const fetchUser = async () => {
+    try {
+      const res = await axios.get("http://localhost:3000/api/user", {
+        withCredentials: true,
+      });
+      setUser(res.data.user);
+    } catch (err) {
+      console.error("Fetch user error:", err);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await axios.get("http://localhost:3000/api/logout", {
+        withCredentials: true,
+      });
+
+      navigate("/auth/login", { replace: true });
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  return (
+    <header className="sticky top-0 z-50 bg-white shadow-sm border-b">
+      <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+        <Link
+          to="/home"
+          className="flex items-center gap-2 text-2xl font-bold text-gray-800 hover:text-blue-600 transition"
+        >
+          <FaGraduationCap className="text-blue-500 text-3xl" />
+          Campus<span className="text-blue-600">Connect</span>
+        </Link>
+
+        <nav className="flex items-center gap-6">
+          <Link
+            to="/home"
+            className="flex items-center gap-3 text-gray-700 text-base font-medium hover:text-blue-600 transition"
+          >
+            <FaHome className="text-xl" />
+            Home
+          </Link>
+
+          <Link
+            to="/marketplace"
+            className="flex items-center gap-3 text-gray-700 text-base font-medium hover:text-blue-600 transition"
+          >
+            <FaShoppingCart className="text-xl" />
+            Buy & Sell
+          </Link>
+
+          <Link
+            to="/profile"
+            className="flex items-center gap-3 text-gray-700 text-base font-medium hover:text-blue-600 transition"
+          >
+            <img
+              src={`http://localhost:3000/images/uploads/${user?.profilepic}`}
+              alt="Profile"
+              className="w-9 h-9 rounded-full object-cover"
+            />
+            Profile
+          </Link>
+
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 text-gray-700 text-base font-medium hover:text-red-600 transition cursor-pointer"
+          >
+            <FaSignOutAlt className="text-xl" />
+            Logout
+          </button>
+        </nav>
+      </div>
+    </header>
+  );
+};
+
+export default Header;
