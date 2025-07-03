@@ -11,7 +11,7 @@ const Home = () => {
         withCredentials: true,
       });
       setRequests(res.data.requests.reverse());
-      console.log(res.data.requests[0].requester.profilepic);
+      // console.log(res.data.requests[0].requester.profilepic);
     } catch (err) {
       console.error("Fetch request error:", err);
     }

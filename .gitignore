@@ -1,8 +1,10 @@
 node_modules/
 frontend/node_modules/
-backend/node_modules/
-backend/.env
-backend/uploads/
+ccbackend/node_modules/
+ccbackend/.env
+ccbackend/uploads/
 dist/
 .vscode/
 *.log
+*.env
+*.DS_Store
