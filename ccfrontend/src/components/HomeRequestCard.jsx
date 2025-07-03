@@ -1,7 +1,51 @@
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { format } from "date-fns";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import socket from "../socket";
 
 function HomeRequestCard({ requests }) {
+  const [currentUserId, setCurrentUserId] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const res = await axios.get("http://localhost:3000/api/user", {
+        withCredentials: true,
+      });
+      setCurrentUserId(res.data.user._id);
+      localStorage.setItem("userId", res.data.user._id);
+      socket.emit("join_room", res.data.user._id);
+    };
+    fetchUser();
+  }, []);
+  
+  const handleAccept = async (request) => {
+    try {
+      const res = await axios.post(`http://localhost:3000/api/acceptRequest/${request._id}`, {}, {
+        withCredentials: true,
+      });
+      
+      console.log(res);
+
+      // socket.emit("send_notification", {
+      //   senderId: currentUserId,
+      //   receiverId: request.requester._id,
+      //   message: "Your request has been accepted!",
+      // });
+  
+      // socket.emit("send_message", {
+      //   senderId: currentUserId,
+      //   receiverId: request.requester._id,
+      //   message: "Hi! I’ve accepted your request, let’s chat!",
+      // });
+  
+      // navigate("/inbox");
+    } catch (err) {
+      alert(err.response ? err.response.data.message : "An error occurred while accepting the request.");
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto p-4 space-y-6">
       <h1 className="text-3xl font-bold text-gray-800 mb-2">
@@ -58,17 +102,16 @@ function HomeRequestCard({ requests }) {
                 </div>
               </div>
 
-              {/* Button */}
               <div className="mt-4">
                 <button
-                  onClick={() => console.log("Accepted request:", request.requester._id, request._id)}
+                  onClick={() => handleAccept(request)}
                   disabled={request.isAccepted}
                   className={`flex items-center justify-center gap-1 w-full text-sm font-medium px-3 py-1.5 rounded-md transition border 
-                ${
-                  request.isAccepted
-                    ? "bg-green-50 text-green-600 border-green-200 cursor-not-allowed"
-                    : "bg-white text-green-600 border-green-500 hover:bg-green-500 hover:text-white"
-                }`}
+                  ${
+                    request.isAccepted
+                      ? "bg-green-50 text-green-600 border-green-200 cursor-not-allowed"
+                      : "bg-white text-green-600 border-green-500 hover:bg-green-500 hover:text-white"
+                  }`}
                 >
                   ✅ {request.isAccepted ? "Accepted" : "Accept"}
                 </button>

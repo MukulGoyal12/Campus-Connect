@@ -68,3 +68,30 @@ export async function fetchRequest(req,res){
     return res.status(500).json({ message: err.message });
   }
 }
+
+export const AcceptRequest = async (req, res) => {
+  try {
+    const {requestid} = req.params;
+    let user = await UserModel.findOne({ email: req.user.email }).select("-password");
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    let post= await RequestModel.findOne({ _id: requestid }).populate("requester");
+    if (!post) {
+      return res.status(404).send("Request not found");
+    }
+
+    if (post.requester._id.toString() === user._id.toString()) {
+      return res.status(400).send({message: "You cannot accept your own request" });
+    }
+
+    post.isAccepted = true;
+    post.accepter = user._id;
+    await post.save();
+
+    return res.status(200).json({ message: "Request accepted successfully" }); 
+  } catch (err) {
+    return res.status(500).send({message: err.message});
+  }
+};

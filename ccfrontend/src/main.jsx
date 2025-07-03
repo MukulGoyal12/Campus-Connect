@@ -10,6 +10,8 @@ import Profile from "./Pages/Profile";
 import MarketPlace from "./Pages/MarketPlace";
 import ProtectedRoute from "./components/ProtectedRoute";
 import UserProfile from "./Pages/UserProfile";
+import Notification from "./Pages/Notifications";
+import Inbox from "./Pages/Inbox";
 
 const appRoutes = createBrowserRouter([
   {
@@ -48,6 +50,22 @@ const appRoutes = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <UserProfile />
+          </ProtectedRoute>
+        ),
+      },      
+      {
+        path: "notifications",
+        element: (
+          <ProtectedRoute>
+            <Notification/>
+          </ProtectedRoute>
+        ),
+      },      
+      {
+        path: "inbox",
+        element: (
+          <ProtectedRoute>
+            <Inbox/>
           </ProtectedRoute>
         ),
       },      
