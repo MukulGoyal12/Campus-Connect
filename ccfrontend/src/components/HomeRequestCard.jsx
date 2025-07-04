@@ -14,8 +14,7 @@ function HomeRequestCard({ requests }) {
         withCredentials: true,
       });
       setCurrentUserId(res.data.user._id);
-      localStorage.setItem("userId", res.data.user._id);
-      socket.emit("join_room", res.data.user._id);
+      // socket.emit("join_room", res.data.user._id);
     };
     fetchUser();
   }, []);

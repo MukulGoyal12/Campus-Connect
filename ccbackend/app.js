@@ -11,6 +11,7 @@ import "./db.js";
 import Message from "./models/message-model.js";
 import Notification from "./models/notification-model.js";
 import { messageRoutes } from "./routes/message.routes.js";
+import { notificationRoutes } from "./routes/notification.routes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,6 +32,7 @@ app.use(cookieParser());
 userRoutes(app);
 requestRoutes(app);
 messageRoutes(app);
+notificationRoutes(app);
 
 const server = http.createServer(app);
 
