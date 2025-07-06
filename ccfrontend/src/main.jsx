@@ -12,6 +12,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import UserProfile from "./Pages/UserProfile";
 import Notification from "./Pages/Notifications";
 import Inbox from "./Pages/Inbox";
+import SocketProvider from "./provider/SocketProvider";
 
 const appRoutes = createBrowserRouter([
   {
@@ -75,6 +76,8 @@ const appRoutes = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <RouterProvider router={appRoutes} />
+<SocketProvider>
+      <RouterProvider router={appRoutes} />
+</SocketProvider>
   </React.StrictMode>
 );

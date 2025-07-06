@@ -6,6 +6,7 @@ function App() {
   const location = useLocation();
   const isAuthenticated = document.cookie.includes("token");
 
+
   const authPaths = ["/auth/login", "/auth/register"];
 
   return (

@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { format } from "date-fns";
 import { Link, useNavigate } from "react-router-dom";
-import socket from "../socket";
+import { useSocket } from "../provider/SocketProvider";
+// import socket from "../socket";
 
 function HomeRequestCard({ requests }) {
   const [currentUserId, setCurrentUserId] = useState("");
   const navigate = useNavigate();
+  const {socket} = useSocket();
 
   useEffect(() => {
     const fetchUser = async () => {
