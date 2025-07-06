@@ -32,7 +32,7 @@ export async function register(req, res) {
 
     const hash = await hashedPassword(password);
 
-    const formattedName = capitalizeFirstAndLast(name);
+    const formattedName = capitalizeFirstAndLastWord(name);
 
     const user = await userModel.create({
       name: formattedName,
@@ -148,6 +148,23 @@ export async function getUserById(req, res) {
     return res.status(200).json({
       message: "User fetched successfully",
       user: user,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: err.message });
+  }
+}
+
+export async function getAllUsers(req, res) {
+  try {
+    const currentUserId = req.user._id;
+    const users = await userModel.find({ _id: { $ne: currentUserId } })
+      .select("-password")
+      .select("name email profilepic _id");
+    
+    return res.status(200).json({
+      message: "Users fetched successfully",
+      users: users,
     });
   } catch (err) {
     console.error(err);

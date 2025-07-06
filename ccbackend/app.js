@@ -45,8 +45,22 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+  
   socket.on("join_room", (userId) => {
     socket.join(userId);
+    socket.userId = userId; // Store userId on socket
+    console.log(`User ${userId} joined room`);
+  });
+
+  socket.on("join_chat", (data) => {
+    socket.currentChatWith = data.otherUserId;
+    console.log(`User ${socket.userId} is now chatting with ${data.otherUserId}`);
+  });
+
+  socket.on("leave_chat", () => {
+    socket.currentChatWith = null;
+    console.log(`User ${socket.userId} left current chat`);
   });
 
   socket.on("send_message", async (data) => {
@@ -54,10 +68,31 @@ io.on("connection", (socket) => {
       const newMessage = new Message({
         sender: data.senderId,
         receiver: data.receiverId,
-        message: data.message
+        message: data.message,
+        isRead: false
       });
       await newMessage.save();
+      
+      // Send message to receiver
       io.to(data.receiverId).emit("receive_message", newMessage);
+      
+      // Only send unread count update if receiver is not currently chatting with sender
+      const receiverSocket = Array.from(io.sockets.sockets.values())
+        .find(s => s.userId === data.receiverId);
+      
+      if (!receiverSocket || receiverSocket.currentChatWith !== data.senderId) {
+        const unreadCount = await Message.countDocuments({
+          receiver: data.receiverId,
+          sender: data.senderId,
+          isRead: false
+        });
+        
+        io.to(data.receiverId).emit("unread_count_update", {
+          senderId: data.senderId,
+          count: unreadCount
+        });
+      }
+      
     } catch (err) {
       console.error("Error saving message:", err.message);
     }
