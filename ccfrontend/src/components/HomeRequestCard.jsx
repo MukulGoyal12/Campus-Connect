@@ -3,7 +3,6 @@ import axios from "axios";
 import { format } from "date-fns";
 import { Link, useNavigate } from "react-router-dom";
 import { useSocket } from "../provider/SocketProvider";
-// import socket from "../socket";
 
 function HomeRequestCard({ requests }) {
   const [currentUserId, setCurrentUserId] = useState("");

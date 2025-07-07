@@ -1,6 +1,44 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useSocket } from "../provider/SocketProvider";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 function MarketCard({ listings }) {
+  const [currentUserId, setCurrentUserId] = useState("");
+  const navigate = useNavigate();
+  const socket = useSocket();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const res = await axios.get("http://localhost:3000/api/user", {
+        withCredentials: true,
+      });
+      setCurrentUserId(res.data.user._id);
+    };
+    fetchUser();
+  }, []);
+
+  const handleClick = (item) => {
+    if (!currentUserId) {
+      alert("User not loaded yet!");
+      return;
+    }
+
+    socket.emit("send_message", {
+      senderId: currentUserId,
+      receiverId: item.seller._id,
+      message: `Hi! I want to buy your ${item.title}, let’s chat!`,
+    });
+
+    navigate("/inbox", {
+      state: {
+        selectUserId: item.seller._id,
+        userName: item.seller.name,
+        requestId: item._id,
+      },
+    });
+  };
+
   const formatDate = (date) => {
     const d = new Date(date);
     return `${d.getDate().toString().padStart(2, "0")}-${(d.getMonth() + 1)
@@ -81,7 +119,13 @@ function MarketCard({ listings }) {
               </div>
 
               <div className="px-5 pb-5 pt-3">
-                <button className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold py-2.5 rounded-full shadow-md hover:from-green-600 hover:to-emerald-700 hover:shadow-lg transition-all duration-300 text-[15px] flex items-center justify-center gap-2">
+                <button
+                  onClick={() => handleClick(item)}
+                  disabled={!currentUserId}
+                  className={`w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold py-2.5 rounded-full shadow-md hover:from-green-600 hover:to-emerald-700 hover:shadow-lg transition-all duration-300 text-[15px] flex items-center justify-center gap-2 ${
+                    !currentUserId ? "opacity-60 cursor-not-allowed" : ""
+                  }`}
+                >
                   ⚡ Buy Now
                 </button>
               </div>
