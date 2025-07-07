@@ -8,7 +8,7 @@ import { useSocket } from "../provider/SocketProvider";
 function HomeRequestCard({ requests }) {
   const [currentUserId, setCurrentUserId] = useState("");
   const navigate = useNavigate();
-  const {socket} = useSocket();
+  const socket = useSocket();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -34,14 +34,21 @@ function HomeRequestCard({ requests }) {
       //   receiverId: request.requester._id,
       //   message: "Your request has been accepted!",
       // });
+
+      socket.emit("send_message", {
+        senderId: currentUserId,
+        receiverId: request.requester._id,
+        message: "Hi! I’ve accepted your request, let’s chat!",
+      });
   
-      // socket.emit("send_message", {
-      //   senderId: currentUserId,
-      //   receiverId: request.requester._id,
-      //   message: "Hi! I’ve accepted your request, let’s chat!",
-      // });
-  
-      // navigate("/inbox");
+      // Navigate to inbox with user ID to auto-select the chat
+      navigate("/inbox", { 
+        state: { 
+          selectUserId: request.requester._id,
+          userName: request.requester.name,
+          requestId: request._id
+        } 
+      });
     } catch (err) {
       alert(err.response ? err.response.data.message : "An error occurred while accepting the request.");
     }
