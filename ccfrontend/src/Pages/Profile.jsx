@@ -2,17 +2,11 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import AddRequest from "../components/AddRequest";
 import ProfilePage from "./ProfilePage";
+import APICalling from "../APICalling";
 
 export default function Profile() {
-  const [user, setUser] = useState(null);
+  const {user, fetchUser} = APICalling();
   const [active, setActive] = useState(false);
-
-  const fetchUser = async () => {
-    const res = await axios.get("http://localhost:3000/api/user", { withCredentials: true });
-    setUser(res.data);
-  };
-
-  useEffect(() => { fetchUser(); }, []);
 
   return (
     <>

@@ -1,54 +1,16 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { format } from "date-fns";
-import { Link, useNavigate } from "react-router-dom";
-import { useSocket } from "../provider/SocketProvider";
-// import socket from "../socket";
+import { Link } from "react-router-dom";
 
 function HomeRequestCard({ requests }) {
-  const [currentUserId, setCurrentUserId] = useState("");
-  const navigate = useNavigate();
-  const socket = useSocket();
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const res = await axios.get("http://localhost:3000/api/user", {
-        withCredentials: true,
-      });
-      setCurrentUserId(res.data.user._id);
-      // socket.emit("join_room", res.data.user._id);
-    };
-    fetchUser();
-  }, []);
   
   const handleAccept = async (request) => {
     try {
       const res = await axios.post(`http://localhost:3000/api/acceptRequest/${request._id}`, {}, {
         withCredentials: true,
       });
-      
-      console.log(res);
 
-      // socket.emit("send_notification", {
-      //   senderId: currentUserId,
-      //   receiverId: request.requester._id,
-      //   message: "Your request has been accepted!",
-      // });
-
-      socket.emit("send_message", {
-        senderId: currentUserId,
-        receiverId: request.requester._id,
-        message: "Hi! I’ve accepted your request, let’s chat!",
-      });
-  
-      // Navigate to inbox with user ID to auto-select the chat
-      navigate("/inbox", { 
-        state: { 
-          selectUserId: request.requester._id,
-          userName: request.requester.name,
-          requestId: request._id
-        } 
-      });
     } catch (err) {
       alert(err.response ? err.response.data.message : "An error occurred while accepting the request.");
     }

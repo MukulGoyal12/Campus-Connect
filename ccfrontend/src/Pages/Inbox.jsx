@@ -12,8 +12,8 @@ const Inbox = () => {
   const [unreadCounts, setUnreadCounts] = useState({});
   const messagesEndRef = useRef(null);
   const socket = useSocket();
-  const currentUser = APICalling();
-
+  const { user: currentUser } = APICalling();
+  
   // Fetch all users for chat list
   useEffect(() => {
     const fetchUsers = async () => {

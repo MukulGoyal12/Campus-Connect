@@ -6,7 +6,7 @@ const RequestCard = ({ user, fetchUser, showDelete = true }) => {
   const handleDelete = async (id) => {
     try {
       if (window.confirm("Are you sure you want to delete this request?")) {
-        await axios.delete(`http://localhost:3000/api/user/request/${id}`, {
+        await axios.delete(`http://localhost:3000/api/request/${id}`, {
           withCredentials: true,
         });
         fetchUser();
