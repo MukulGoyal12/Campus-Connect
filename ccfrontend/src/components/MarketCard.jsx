@@ -21,7 +21,6 @@ function MarketCard({ listings }) {
               key={item._id}
               className="border rounded-2xl shadow-md bg-white flex flex-col h-full transition-all hover:scale-[1.015] hover:shadow-lg duration-300"
             >
-              {/* Product Image */}
               <div className="relative bg-gray-100 h-64 flex items-center justify-center rounded-t-2xl overflow-hidden">
                 <img
                   src={`http://localhost:3000/images/uploads/${item.image}`}
@@ -30,19 +29,15 @@ function MarketCard({ listings }) {
                 />
               </div>
 
-              {/* Card Body */}
               <div className="p-5 flex flex-col flex-grow justify-between">
-                {/* Category badge */}
                 <span className="inline-block w-fit mb-2 text-xs font-semibold text-purple-700 bg-purple-100 px-2 py-0.5 rounded">
                   🏷️ {item.category}
                 </span>
 
-                {/* Title */}
                 <p className="text-sm font-semibold text-gray-800">
                   📦 Title: <span className="font-normal">{item.title}</span>
                 </p>
 
-                {/* Description */}
                 <p className="text-sm font-semibold text-gray-800">
                   📄 Description:{" "}
                   <span className="font-normal text-gray-600">
@@ -50,12 +45,10 @@ function MarketCard({ listings }) {
                   </span>
                 </p>
 
-                {/* Base Price */}
                 <p className="text-green-600 font-semibold text-[15px] mb-3">
                   💰 Base Price: ₹{item.basePrice}
                 </p>
 
-                {/* Seller Info */}
                 <div className="flex items-center gap-4 mt-auto">
                   <Link to={`/user/${item.seller._id}`}>
                     <img
@@ -87,10 +80,9 @@ function MarketCard({ listings }) {
                 </div>
               </div>
 
-              {/* Place Bid */}
               <div className="px-5 pb-5 pt-3">
-                <button className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-2.5 rounded-lg hover:from-green-600 hover:to-green-700 transition duration-300 text-[14px]">
-                  ⚡ Place a Bid
+                <button className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold py-2.5 rounded-full shadow-md hover:from-green-600 hover:to-emerald-700 hover:shadow-lg transition-all duration-300 text-[15px] flex items-center justify-center gap-2">
+                  ⚡ Buy Now
                 </button>
               </div>
             </div>

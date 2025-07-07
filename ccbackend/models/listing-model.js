@@ -38,20 +38,7 @@ const listingSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true
-    },
-    bids: [
-        {
-          bidder: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User"
-          },
-          amount: Number,
-          createdAt: {
-            type: Date,
-            default: Date.now
-          }
-        }
-      ],      
+    },    
     createdAt: {
       type: Date,
       default: Date.now
