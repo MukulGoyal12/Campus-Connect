@@ -83,3 +83,38 @@ export const markMessagesAsRead = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+export const getConversationUserIds = async (req, res) => {
+  const currentUserId = req.user._id;
+
+  try {
+    const conversations = await MessageModel.aggregate([
+      {
+        $match: {
+          $or: [
+            { sender: currentUserId },
+            { receiver: currentUserId },
+          ],
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          senders: { $addToSet: "$sender" },
+          receivers: { $addToSet: "$receiver" },
+        },
+      },
+    ]);
+
+    let userIds = [];
+    if (conversations.length > 0) {
+      const allUsers = [...conversations[0].senders, ...conversations[0].receivers];
+      userIds = [...new Set(allUsers)].filter(id => id.toString() !== currentUserId.toString());
+    }
+
+    res.status(200).json({ userIds });
+  } catch (err) {
+    console.error("Get conversation user IDs error:", err);
+    res.status(500).json({ message: err.message });
+  }
+};

@@ -49,7 +49,7 @@ io.on("connection", (socket) => {
   
   socket.on("join_room", (userId) => {
     socket.join(userId);
-    socket.userId = userId; // Store userId on socket
+    socket.userId = userId;
     console.log(`User ${userId} joined room`);
   });
 
@@ -73,10 +73,8 @@ io.on("connection", (socket) => {
       });
       await newMessage.save();
       
-      // Send message to receiver
       io.to(data.receiverId).emit("receive_message", newMessage);
       
-      // Only send unread count update if receiver is not currently chatting with sender
       const receiverSocket = Array.from(io.sockets.sockets.values())
         .find(s => s.userId === data.receiverId);
       
@@ -109,6 +107,14 @@ io.on("connection", (socket) => {
       io.to(data.receiverId).emit("receive_notification", newNotif);
     } catch (err) {
       console.error("Error saving notification:", err.message);
+    }
+  });
+
+  socket.on("messages_read", async (data) => {
+    try {
+      io.to(data.readerId).emit("messages_read", data);
+    } catch (err) {
+      console.error("Error handling messages_read:", err.message);
     }
   });
 

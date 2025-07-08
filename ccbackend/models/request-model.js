@@ -22,6 +22,19 @@ const RequestSchema = new mongoose.Schema({
     ref: "User",
     default: null,
   },
+  status: {
+    type: String,
+    enum: ["pending", "accepted", "completed", "rejected"],
+    default: "pending",
+  },
+  finalizedAt: {
+    type: Date,
+    default: null,
+  },
+  rejectedAt: {
+    type: Date,
+    default: null,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
