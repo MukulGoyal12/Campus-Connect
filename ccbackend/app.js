@@ -12,6 +12,7 @@ import Message from "./models/message-model.js";
 import Notification from "./models/notification-model.js";
 import { messageRoutes } from "./routes/message.routes.js";
 import { notificationRoutes } from "./routes/notification.routes.js";
+import { listingRoutes } from "./routes/listing.routes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,6 +34,7 @@ userRoutes(app);
 requestRoutes(app);
 messageRoutes(app);
 notificationRoutes(app);
+listingRoutes(app);
 
 const server = http.createServer(app);
 
@@ -45,22 +47,22 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
+  // console.log("User connected:", socket.id);
   
   socket.on("join_room", (userId) => {
     socket.join(userId);
-    socket.userId = userId;
-    console.log(`User ${userId} joined room`);
+    socket.userId = userId; // Store userId on socket
+    // console.log(`User ${userId} joined room`);
   });
 
   socket.on("join_chat", (data) => {
     socket.currentChatWith = data.otherUserId;
-    console.log(`User ${socket.userId} is now chatting with ${data.otherUserId}`);
+    // console.log(`User ${socket.userId} is now chatting with ${data.otherUserId}`);
   });
 
   socket.on("leave_chat", () => {
     socket.currentChatWith = null;
-    console.log(`User ${socket.userId} left current chat`);
+    // console.log(`User ${socket.userId} left current chat`);
   });
 
   socket.on("send_message", async (data) => {

@@ -3,7 +3,7 @@ import axios from "axios";
 import { format } from "date-fns";
 import { Link, useNavigate } from "react-router-dom";
 import { useSocket } from "../provider/SocketProvider";
-// import socket from "../socket";
+import { FaCheck } from "react-icons/fa";
 
 function HomeRequestCard({ requests }) {
   const [currentUserId, setCurrentUserId] = useState("");
@@ -16,116 +16,116 @@ function HomeRequestCard({ requests }) {
         withCredentials: true,
       });
       setCurrentUserId(res.data.user._id);
-      // socket.emit("join_room", res.data.user._id);
     };
     fetchUser();
   }, []);
-  
+
   const handleAccept = async (request) => {
     try {
-      const res = await axios.post(`http://localhost:3000/api/acceptRequest/${request._id}`, {}, {
-        withCredentials: true,
-      });
-      
-      console.log(res);
-
-      // socket.emit("send_notification", {
-      //   senderId: currentUserId,
-      //   receiverId: request.requester._id,
-      //   message: "Your request has been accepted!",
-      // });
+      await axios.post(
+        `http://localhost:3000/api/acceptRequest/${request._id}`,
+        {},
+        { withCredentials: true }
+      );
 
       socket.emit("send_message", {
         senderId: currentUserId,
         receiverId: request.requester._id,
         message: "Hi! I’ve accepted your request, let’s chat!",
       });
-  
-      // Navigate to inbox with user ID to auto-select the chat
-      navigate("/inbox", { 
-        state: { 
+
+      navigate("/inbox", {
+        state: {
           selectUserId: request.requester._id,
           userName: request.requester.name,
-          requestId: request._id
-        } 
+          requestId: request._id,
+        },
       });
     } catch (err) {
-      alert(err.response ? err.response.data.message : "An error occurred while accepting the request.");
+      alert(
+        err.response
+          ? err.response.data.message
+          : "An error occurred while accepting the request."
+      );
     }
   };
 
   return (
     <div className="max-w-6xl mx-auto p-4 space-y-6">
-      <h1 className="text-3xl font-bold text-gray-800 mb-2">
-        📌 Latest Requests
-      </h1>
+      <h1 className="text-3xl font-bold text-gray-800 mb-4">📌 Latest Requests</h1>
 
       {requests.length === 0 ? (
-        <p className="text-gray-500">No requests available yet.</p>
+        <p className="text-gray-500 text-center">No requests available yet.</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {requests.map((request) => (
-            <div
-              key={request._id}
-              className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition"
-            >
-              <div className="space-y-1 mb-4">
-                <h2 className="text-lg font-semibold text-blue-700 flex items-center gap-1">
-                  📖 {request.task}
-                </h2>
-                <p className="text-gray-600 font-medium">
-                  💸 Offer:{" "}
-                  <span className="text-green-600">{request.offer}</span>
-                </p>
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...requests]
+            .sort((a, b) => {
+              if (a.isAccepted === b.isAccepted) return 0;
+              return a.isAccepted ? 1 : -1;
+            })
+            .map((request) => (
+              <div
+                key={request._id}
+                className="relative bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-lg transition duration-300 flex flex-col justify-between h-[230px]"
+              >
+                <div className="space-y-1 mb-2">
+                  <h2 className="text-[17px] font-semibold text-gray-800">
+                    📖 {request.task}
+                  </h2>
+                  <p className="text-gray-600 text-[14px]">
+                    💸 Offer:{" "}
+                    <span className="text-green-600 font-medium">₹{request.offer}</span>
+                  </p>
+                </div>
 
-              <div className="flex items-center justify-between">
-                <Link
-                  to={`/user/${request.requester._id}`}
-                  className="flex items-center gap-2"
-                >
-                  <img
-                    src={`http://localhost:3000/images/uploads/${request.requester.profilepic}`}
-                    alt="Profile"
-                    className="w-9 h-9 rounded-full object-cover border"
-                  />
-                  <div>
-                    <p className="text-sm font-medium text-gray-800">
-                      {request.requester.name}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {format(new Date(request.createdAt), "dd MMM yyyy")}
-                    </p>
-                  </div>
-                </Link>
+                <div className="flex items-center justify-between mt-2">
+                  <Link
+                    to={`/user/${request.requester._id}`}
+                    className="flex items-center gap-2"
+                  >
+                    <img
+                      src={`http://localhost:3000/images/uploads/${request.requester.profilepic}`}
+                      alt="Profile"
+                      className="w-9 h-9 rounded-full object-cover border"
+                    />
+                    <div>
+                      <p className="text-[13px] font-medium text-gray-800">
+                        {request.requester.name}
+                      </p>
+                      <p className="text-[11px] text-gray-500">
+                        {format(new Date(request.createdAt), "dd MMM yyyy")}
+                      </p>
+                    </div>
+                  </Link>
 
-                <div
-                  className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                    request.isAccepted
-                      ? "bg-green-100 text-green-700"
-                      : "bg-orange-100 text-orange-600"
-                  }`}
-                >
-                  {request.isAccepted ? "Accepted" : "Pending"}
+                  <span
+                    className={`text-[11px] font-semibold px-2 py-1 rounded-full ${
+                      request.isAccepted
+                        ? "bg-green-50 text-green-700 border border-green-100"
+                        : "bg-yellow-50 text-yellow-700 border border-yellow-100"
+                    }`}
+                  >
+                    {request.isAccepted ? "Accepted" : "Pending"}
+                  </span>
+                </div>
+
+                <div className="mt-4 flex justify-start">
+                  <button
+                    onClick={() => handleAccept(request)}
+                    disabled={request.isAccepted}
+                    className={`flex items-center gap-2 text-sm font-medium px-3 py-1.5 rounded-lg transition-all duration-200 border
+                      ${
+                        request.isAccepted
+                          ? "bg-green-50 text-green-600 border-green-200 cursor-not-allowed"
+                          : "bg-white text-green-600 border-green-500 hover:bg-green-500 hover:text-white"
+                      }`}
+                  >
+                    <FaCheck className="text-[13px]" />
+                    {request.isAccepted ? "Accepted" : "Accept"}
+                  </button>
                 </div>
               </div>
-
-              <div className="mt-4">
-                <button
-                  onClick={() => handleAccept(request)}
-                  disabled={request.isAccepted}
-                  className={`flex items-center justify-center gap-1 w-full text-sm font-medium px-3 py-1.5 rounded-md transition border 
-                  ${
-                    request.isAccepted
-                      ? "bg-green-50 text-green-600 border-green-200 cursor-not-allowed"
-                      : "bg-white text-green-600 border-green-500 hover:bg-green-500 hover:text-white"
-                  }`}
-                >
-                  ✅ {request.isAccepted ? "Accepted" : "Accept"}
-                </button>
-              </div>
-            </div>
-          ))}
+            ))}
         </div>
       )}
     </div>
