@@ -33,7 +33,11 @@ const listingSchema = new mongoose.Schema({
           "Others"
         ],
         required: true
-      },      
+      },  
+      sold: {
+        type: Boolean,
+        default: false,
+      },    
     seller: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
