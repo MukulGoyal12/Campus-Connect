@@ -17,7 +17,66 @@ const Inbox = () => {
   const [showOfferButtons, setShowOfferButtons] = useState(false);
   const messagesEndRef = useRef(null);
   const socket = useSocket();
-  const { user: currentUser } = APICalling();
+  const currentUser = APICalling();
+  const location = useLocation();
+  const addUserTimeouts = useRef(new Map());
+
+  const addUserToList = useCallback(async (userId) => {
+    try {
+      if (userId === currentUser?._id) return;
+      
+      if (addUserTimeouts.current.has(userId)) {
+        clearTimeout(addUserTimeouts.current.get(userId));
+      }
+      
+      const timeout = setTimeout(async () => {
+        try {
+          let shouldFetchUser = false;
+          
+          setUsers(prev => {
+            if (prev.find(user => user._id === userId)) {
+              return prev;
+            }
+            shouldFetchUser = true;
+            return prev;
+          });
+          
+          if (shouldFetchUser) {
+            try {
+              const response = await axios.get(`http://localhost:3000/api/user/${userId}`, {
+                withCredentials: true,
+              });
+              
+              if (response.data.user) {
+                setUsers(currentUsers => {
+                  if (currentUsers.find(user => user._id === userId)) {
+                    return currentUsers;
+                  }
+                  
+                  return [...currentUsers, {
+                    _id: response.data.user._id,
+                    name: response.data.user.name,
+                    email: response.data.user.email,
+                    profilepic: response.data.user.profilepic
+                  }];
+                });
+              }
+            } catch (error) {
+              console.error("Error fetching user data:", error);
+            }
+          }
+        } catch (error) {
+          console.error("Error in addUserToList:", error);
+        } finally {
+          addUserTimeouts.current.delete(userId);
+        }
+      }, 100);
+      
+      addUserTimeouts.current.set(userId, timeout);
+    } catch (error) {
+      console.error("Error in addUserToList:", error);
+    }
+  }, [currentUser]);
   
   // Fetch all users for chat list
   useEffect(() => {
@@ -157,20 +216,18 @@ const Inbox = () => {
 
   useEffect(() => {
     if (currentUser && socket) {
-      socket.emit("join_room", currentUser.user._id);
+      socket.emit("join_room", currentUser._id);
     }
   }, [currentUser, socket]);
 
   useEffect(() => {
     if (socket) {
       socket.on("receive_message", async (message) => {
-        
-        if (message.sender !== currentUser?.user._id) {
+          if (message.sender !== currentUser?._id) {
           await addUserToList(message.sender);
         }
         
-        
-        if (message.receiver !== currentUser?.user._id) {
+        if (message.receiver !== currentUser?._id) {
           await addUserToList(message.receiver);
         }
         
@@ -188,14 +245,14 @@ const Inbox = () => {
             ).then(() => {
               
               socket.emit("messages_read", { 
-                readerId: currentUser.user._id,
+                readerId: currentUser._id,
                 senderId: selectedUser._id 
               });
             }).catch(console.error);
           }
         }
         
-        if (message.sender !== currentUser?.user._id && 
+        if (message.sender !== currentUser?._id && 
             (!selectedUser || message.sender !== selectedUser._id)) {
           setUnreadCounts(prev => ({
             ...prev,
@@ -227,7 +284,7 @@ const Inbox = () => {
         
         try {
           const response = await axios.get(
-            `http://localhost:3000/api/messages/${currentUser.user._id}/${selectedUser._id}`,
+            `http://localhost:3000/api/messages/${currentUser._id}/${selectedUser._id}`,
             { withCredentials: true }
           );
           setMessages(response.data.messages);
@@ -240,7 +297,7 @@ const Inbox = () => {
 
           
           socket.emit("messages_read", { 
-            readerId: currentUser.user._id,
+            readerId: currentUser._id,
             senderId: selectedUser._id 
           });
 
@@ -292,7 +349,7 @@ const Inbox = () => {
     }
 
     const messageData = {
-      senderId: currentUser.user._id,
+      senderId: currentUser._id,
       receiverId: selectedUser._id,
       message: newMessage,
     };
@@ -331,7 +388,7 @@ const Inbox = () => {
       
       if (socket) {
         socket.emit("send_message", {
-          senderId: currentUser.user._id,
+          senderId: currentUser._id,
           receiverId: selectedUser._id,
           message: "🎉 Offer accepted! Let's proceed with the request.",
         });
@@ -356,7 +413,7 @@ const Inbox = () => {
       
       if (socket) {
         socket.emit("send_message", {
-          senderId: currentUser.user._id,
+          senderId: currentUser._id,
           receiverId: selectedUser._id,
           message: "❌ Offer rejected. Thank you for your time.",
         });
@@ -472,14 +529,14 @@ const Inbox = () => {
                   <div
                     key={message._id}
                     className={`flex ${
-                      message.sender === currentUser.user._id
+                      message.sender === currentUser._id
                         ? "justify-end"
                         : "justify-start"
                     }`}
                   >
                     <div
                       className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                        message.sender === currentUser.user._id
+                        message.sender === currentUser._id
                           ? "bg-blue-500 text-white"
                           : "bg-gray-200 text-gray-900"
                       }`}
@@ -487,7 +544,7 @@ const Inbox = () => {
                       <p className="text-sm">{message.message}</p>
                       <p
                         className={`text-xs mt-1 ${
-                          message.sender === currentUser.user._id
+                          message.sender === currentUser._id
                             ? "text-blue-100"
                             : "text-gray-500"
                         }`}
