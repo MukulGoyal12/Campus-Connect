@@ -79,48 +79,51 @@ const Inbox = () => {
   }, [currentUser]);
   
   // Fetch all users for chat list
-  useEffect(() => {
-    const initializeUserList = async () => {
-      if (!currentUser) return;
-      
-      try {
-        const response = await axios.get("http://localhost:3000/api/messages/conversations", {
-          withCredentials: true,
-        });
-        
-        const userIds = response.data.userIds || [];
-        
-        const userPromises = userIds.map(async (userId) => {
-          try {
-            const userResponse = await axios.get(`http://localhost:3000/api/user/${userId}`, {
-              withCredentials: true,
-            });
-            return {
-              _id: userResponse.data.user._id,
-              name: userResponse.data.user.name,
-              email: userResponse.data.user.email,
-              profilepic: userResponse.data.user.profilepic
-            };
-          } catch (error) {
-            console.error(`Error fetching user ${userId}:`, error);
-            return null;
-          }
-        });
-        
-        const users = await Promise.all(userPromises);
-        const validUsers = users.filter(user => user !== null);
-        setUsers(validUsers);
-        
-      } catch (error) {
-        console.error("Error initializing user list:", error);
-        setUsers([]);
-      }
-    };
+  const refreshUserList = useCallback(async () => {
+    if (!currentUser) return;
     
-    if (currentUser) {
-      initializeUserList();
+    try {
+      const response = await axios.get("http://localhost:3000/api/messages/conversations", {
+        withCredentials: true,
+      });
+      
+      const userIds = response.data.userIds || [];
+      
+      const userPromises = userIds.map(async (userId) => {
+        try {
+          const userResponse = await axios.get(`http://localhost:3000/api/user/${userId}`, {
+            withCredentials: true,
+          });
+          return {
+            _id: userResponse.data.user._id,
+            name: userResponse.data.user.name,
+            email: userResponse.data.user.email,
+            profilepic: userResponse.data.user.profilepic
+          };
+        } catch (error) {
+          console.error(`Error fetching user ${userId}:`, error);
+          return null;
+        }
+      });
+      
+      const users = await Promise.all(userPromises);
+      const validUsers = users.filter(user => user !== null);
+      setUsers(validUsers);
+      
+    } catch (error) {
+      console.error("Error refreshing user list:", error);
     }
   }, [currentUser]);
+
+  useEffect(() => {
+    if (currentUser) {
+      refreshUserList();
+      
+      const intervalId = setInterval(refreshUserList, 30000);
+      
+      return () => clearInterval(intervalId);
+    }
+  }, [currentUser, refreshUserList]);
 
   useEffect(() => {
     const cleanupDuplicates = () => {
@@ -170,31 +173,30 @@ const Inbox = () => {
   useEffect(() => {
     const handleAutoSelect = async () => {
       if (location.state?.selectUserId) {
-        
         let userToSelect = users.find(user => user._id === location.state.selectUserId);
         
         if (!userToSelect) {
-          
           await addUserToList(location.state.selectUserId);
           
-          
           setTimeout(() => {
-            const user = users.find(u => u._id === location.state.selectUserId);
-            if (user) {
-              setSelectedUser(user);
-              
-              if (location.state?.requestId) {
-                setIsRequestChat(true);
-                setRequestId(location.state.requestId);
-                setMessageCount(0);
-                setShowOfferButtons(false);
+            setUsers(currentUsers => {
+              const user = currentUsers.find(u => u._id === location.state.selectUserId);
+              if (user) {
+                setSelectedUser(user);
+                
+                if (location.state?.requestId) {
+                  setIsRequestChat(true);
+                  setRequestId(location.state.requestId);
+                  setMessageCount(0);
+                  setShowOfferButtons(false);
+                }
+                
+                window.history.replaceState({}, document.title);
               }
-              
-              window.history.replaceState({}, document.title);
-            }
-          }, 200);
+              return currentUsers;
+            });
+          }, 300);
         } else {
-          
           setSelectedUser(userToSelect);
           
           if (location.state?.requestId) {
@@ -212,7 +214,7 @@ const Inbox = () => {
     if (location.state?.selectUserId && currentUser) {
       handleAutoSelect();
     }
-  }, [location.state, users, currentUser, addUserToList]);
+  }, [location.state, currentUser]);
 
   useEffect(() => {
     if (currentUser && socket) {
@@ -223,14 +225,6 @@ const Inbox = () => {
   useEffect(() => {
     if (socket) {
       socket.on("receive_message", async (message) => {
-          if (message.sender !== currentUser?._id) {
-          await addUserToList(message.sender);
-        }
-        
-        if (message.receiver !== currentUser?._id) {
-          await addUserToList(message.receiver);
-        }
-        
         if (
           selectedUser &&
           (message.sender === selectedUser._id || message.receiver === selectedUser._id)
@@ -243,7 +237,6 @@ const Inbox = () => {
               {},
               { withCredentials: true }
             ).then(() => {
-              
               socket.emit("messages_read", { 
                 readerId: currentUser._id,
                 senderId: selectedUser._id 
@@ -273,7 +266,7 @@ const Inbox = () => {
         socket.off("unread_count_update");
       };
     }
-  }, [socket, selectedUser, currentUser, addUserToList]);
+  }, [socket, selectedUser, currentUser]);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -342,7 +335,6 @@ const Inbox = () => {
   const sendMessage = async () => {
     if (!newMessage.trim() || !selectedUser || !currentUser) return;
 
-    
     if (isRequestChat && messageCount >= 5) {
       alert("Message limit reached! Please accept or reject the offer first.");
       return;
@@ -364,7 +356,6 @@ const Inbox = () => {
       };
       setMessages((prev) => [...prev, tempMessage]);
       
-      
       if (isRequestChat) {
         const newCount = messageCount + 1;
         setMessageCount(newCount);
@@ -375,6 +366,9 @@ const Inbox = () => {
       }
       
       setNewMessage("");
+      
+      setTimeout(() => refreshUserList(), 1000);
+      
     } catch (error) {
       console.error("Error sending message:", error);
     }
