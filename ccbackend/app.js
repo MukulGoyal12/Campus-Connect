@@ -9,9 +9,7 @@ import { userRoutes } from "./routes/user.routes.js";
 import { requestRoutes } from "./routes/request.routes.js";
 import "./db.js";
 import Message from "./models/message-model.js";
-import Notification from "./models/notification-model.js";
 import { messageRoutes } from "./routes/message.routes.js";
-import { notificationRoutes } from "./routes/notification.routes.js";
 import { listingRoutes } from "./routes/listing.routes.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -33,7 +31,6 @@ app.use(cookieParser());
 userRoutes(app);
 requestRoutes(app);
 messageRoutes(app);
-notificationRoutes(app);
 listingRoutes(app);
 
 const server = http.createServer(app);
@@ -94,19 +91,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("send_notification", async (data) => {
-    try {
-      const newNotif = new Notification({
-        sender: data.senderId,
-        receiver: data.receiverId,
-        message: data.message
-      });
-      await newNotif.save();
-      io.to(data.receiverId).emit("receive_notification", newNotif);
-    } catch (err) {
-      console.error("Error saving notification:", err.message);
-    }
-  });
 
   socket.on("messages_read", async (data) => {
     try {

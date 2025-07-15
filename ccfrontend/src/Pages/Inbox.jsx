@@ -67,17 +67,21 @@ const Inbox = () => {
           selectedUser &&
           (message.sender === selectedUser._id || message.receiver === selectedUser._id)
         ) {
-          setMessages((prev) => [...prev, message]);
-          
-          // If it's from the selected user, mark it as read immediately
-          if (message.sender === selectedUser._id) {
-            axios.put(
-              `http://localhost:3000/api/messages/mark-read/${selectedUser._id}`,
-              {},
-              { withCredentials: true }
-            ).catch(console.error);
+          // If message is from other person only
+          if (message.sender !== currentUser.user._id) {
+            setMessages((prev) => [...prev, message]);
+        
+            // Mark as read if it's from selected user
+            if (message.sender === selectedUser._id) {
+              axios.put(
+                `http://localhost:3000/api/messages/mark-read/${selectedUser._id}`,
+                {},
+                { withCredentials: true }
+              ).catch(console.error);
+            }
           }
         }
+        
         
         // Update unread count for the sender (only if not currently chatting with them)
         if (message.sender !== currentUser?.user._id && 

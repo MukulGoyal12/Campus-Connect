@@ -66,46 +66,41 @@ const Header = () => {
   }, []);
 
   // Socket listeners for real-time unread count updates
-  // useEffect(() => {
-  //   if (socket && user) {
-  //     socket.emit("join_room", user._id);
+  useEffect(() => {
+    if (socket && user) {
+      socket.emit("join_room", user._id);
 
-  //     socket.on("receive_message", (message) => {
-  //       // Only update count if message is not from current user
-  //       if (message.sender !== user._id) {
-  //         setTotalUnreadCount((prev) => prev + 1);
-  //       }
-  //     });
+      socket.on("receive_message", (message) => {
+        // Only update count if message is not from current user
+        if (message.sender !== user._id) {
+          setTotalUnreadCount((prev) => prev + 1);
+        }
+      });
 
-  //     socket.on("unread_count_update", () => {
-  //       // Refetch the complete unread count when there's an update
-  //       fetchUnreadCount();
-  //     });
+      socket.on("unread_count_update", () => {
+        // Refetch the complete unread count when there's an update
+        fetchUnreadCount();
+      });
 
-  //     socket.on("messages_read", (data) => {
-  //       // Decrease count when messages are marked as read
-  //       if (data.count) {
-  //         setTotalUnreadCount((prev) => Math.max(0, prev - data.count));
-  //       }
-  //     });
+      socket.on("messages_read", (data) => {
+        // Decrease count when messages are marked as read
+        if (data.count) {
+          setTotalUnreadCount((prev) => Math.max(0, prev - data.count));
+        }
+      });
 
-  //     return () => {
-  //       socket.off("receive_message");
-  //       socket.off("unread_count_update");
-  //       socket.off("messages_read");
-  //     };
-  //   }
-  // }, [socket, user]);
+      return () => {
+        socket.off("receive_message");
+        socket.off("unread_count_update");
+        socket.off("messages_read");
+      };
+    }
+  }, [socket, user]);
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
-        <Link
-          to="/home"
-          className="flex items-center gap-2 transition-transform duration-500 hover:rotate-[5deg] hover:scale-105"
-        >
           <Logo/>
-        </Link>
 
         <nav className="flex items-center gap-5">
   <Link
