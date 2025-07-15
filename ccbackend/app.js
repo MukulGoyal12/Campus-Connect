@@ -47,22 +47,18 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  // console.log("User connected:", socket.id);
   
   socket.on("join_room", (userId) => {
     socket.join(userId);
-    socket.userId = userId; // Store userId on socket
-    // console.log(`User ${userId} joined room`);
+    socket.userId = userId;
   });
 
   socket.on("join_chat", (data) => {
     socket.currentChatWith = data.otherUserId;
-    // console.log(`User ${socket.userId} is now chatting with ${data.otherUserId}`);
   });
 
   socket.on("leave_chat", () => {
     socket.currentChatWith = null;
-    // console.log(`User ${socket.userId} left current chat`);
   });
 
   socket.on("send_message", async (data) => {

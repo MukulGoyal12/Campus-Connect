@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useSocket } from "../provider/SocketProvider";
-import { useLocation } from "react-router-dom";
 import APICalling from "../APICalling";
 
 const Inbox = () => {
@@ -11,142 +10,27 @@ const Inbox = () => {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [unreadCounts, setUnreadCounts] = useState({});
-  const [isRequestChat, setIsRequestChat] = useState(false);
-  const [requestId, setRequestId] = useState(null);
-  const [messageCount, setMessageCount] = useState(0);
-  const [showOfferButtons, setShowOfferButtons] = useState(false);
   const messagesEndRef = useRef(null);
   const socket = useSocket();
-  const currentUser = APICalling();
-  const location = useLocation();
-  const addUserTimeouts = useRef(new Map());
+  const {user:currentUser} = APICalling();
 
-  const addUserToList = useCallback(async (userId) => {
-    try {
-      if (userId === currentUser?._id) return;
-      
-      if (addUserTimeouts.current.has(userId)) {
-        clearTimeout(addUserTimeouts.current.get(userId));
-      }
-      
-      const timeout = setTimeout(async () => {
-        try {
-          let shouldFetchUser = false;
-          
-          setUsers(prev => {
-            if (prev.find(user => user._id === userId)) {
-              return prev;
-            }
-            shouldFetchUser = true;
-            return prev;
-          });
-          
-          if (shouldFetchUser) {
-            try {
-              const response = await axios.get(`http://localhost:3000/api/user/${userId}`, {
-                withCredentials: true,
-              });
-              
-              if (response.data.user) {
-                setUsers(currentUsers => {
-                  if (currentUsers.find(user => user._id === userId)) {
-                    return currentUsers;
-                  }
-                  
-                  return [...currentUsers, {
-                    _id: response.data.user._id,
-                    name: response.data.user.name,
-                    email: response.data.user.email,
-                    profilepic: response.data.user.profilepic
-                  }];
-                });
-              }
-            } catch (error) {
-              console.error("Error fetching user data:", error);
-            }
-          }
-        } catch (error) {
-          console.error("Error in addUserToList:", error);
-        } finally {
-          addUserTimeouts.current.delete(userId);
-        }
-      }, 100);
-      
-      addUserTimeouts.current.set(userId, timeout);
-    } catch (error) {
-      console.error("Error in addUserToList:", error);
-    }
-  }, [currentUser]);
-  
   // Fetch all users for chat list
-  const refreshUserList = useCallback(async () => {
-    if (!currentUser) return;
-    
-    try {
-      const response = await axios.get("http://localhost:3000/api/messages/conversations", {
-        withCredentials: true,
-      });
-      
-      const userIds = response.data.userIds || [];
-      
-      const userPromises = userIds.map(async (userId) => {
-        try {
-          const userResponse = await axios.get(`http://localhost:3000/api/user/${userId}`, {
-            withCredentials: true,
-          });
-          return {
-            _id: userResponse.data.user._id,
-            name: userResponse.data.user.name,
-            email: userResponse.data.user.email,
-            profilepic: userResponse.data.user.profilepic
-          };
-        } catch (error) {
-          console.error(`Error fetching user ${userId}:`, error);
-          return null;
-        }
-      });
-      
-      const users = await Promise.all(userPromises);
-      const validUsers = users.filter(user => user !== null);
-      setUsers(validUsers);
-      
-    } catch (error) {
-      console.error("Error refreshing user list:", error);
-    }
-  }, [currentUser]);
-
   useEffect(() => {
-    if (currentUser) {
-      refreshUserList();
-      
-      const intervalId = setInterval(refreshUserList, 30000);
-      
-      return () => clearInterval(intervalId);
-    }
-  }, [currentUser, refreshUserList]);
-
-  useEffect(() => {
-    const cleanupDuplicates = () => {
-      setUsers(prev => {
-        const uniqueUsers = [];
-        const seenIds = new Set();
+    const fetchUsers = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/api/users", {
+          withCredentials: true,
+        });
         
-        for (const user of prev) {
-          if (!seenIds.has(user._id)) {
-            seenIds.add(user._id);
-            uniqueUsers.push(user);
-          }
-        }
-        
-        return uniqueUsers.length !== prev.length ? uniqueUsers : prev;
-      });
+        setUsers(response.data.users);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
     };
-    
-    const timeoutId = setTimeout(cleanupDuplicates, 100);
-    
-    return () => clearTimeout(timeoutId);
-  }, [users]);
+    fetchUsers();
+  }, []);
 
+  // Fetch unread counts
   useEffect(() => {
     const fetchUnreadCounts = async () => {
       try {
@@ -169,53 +53,6 @@ const Inbox = () => {
     }
   }, [currentUser]);
 
-
-  useEffect(() => {
-    const handleAutoSelect = async () => {
-      if (location.state?.selectUserId) {
-        let userToSelect = users.find(user => user._id === location.state.selectUserId);
-        
-        if (!userToSelect) {
-          await addUserToList(location.state.selectUserId);
-          
-          setTimeout(() => {
-            setUsers(currentUsers => {
-              const user = currentUsers.find(u => u._id === location.state.selectUserId);
-              if (user) {
-                setSelectedUser(user);
-                
-                if (location.state?.requestId) {
-                  setIsRequestChat(true);
-                  setRequestId(location.state.requestId);
-                  setMessageCount(0);
-                  setShowOfferButtons(false);
-                }
-                
-                window.history.replaceState({}, document.title);
-              }
-              return currentUsers;
-            });
-          }, 300);
-        } else {
-          setSelectedUser(userToSelect);
-          
-          if (location.state?.requestId) {
-            setIsRequestChat(true);
-            setRequestId(location.state.requestId);
-            setMessageCount(0);
-            setShowOfferButtons(false);
-          }
-          
-          window.history.replaceState({}, document.title);
-        }
-      }
-    };
-    
-    if (location.state?.selectUserId && currentUser) {
-      handleAutoSelect();
-    }
-  }, [location.state, currentUser]);
-
   useEffect(() => {
     if (currentUser && socket) {
       socket.emit("join_room", currentUser._id);
@@ -224,28 +61,26 @@ const Inbox = () => {
 
   useEffect(() => {
     if (socket) {
-      socket.on("receive_message", async (message) => {
+      socket.on("receive_message", (message) => {
+        // If the message is for the currently selected chat, add it to messages
         if (
           selectedUser &&
           (message.sender === selectedUser._id || message.receiver === selectedUser._id)
         ) {
           setMessages((prev) => [...prev, message]);
           
+          // If it's from the selected user, mark it as read immediately
           if (message.sender === selectedUser._id) {
             axios.put(
               `http://localhost:3000/api/messages/mark-read/${selectedUser._id}`,
               {},
               { withCredentials: true }
-            ).then(() => {
-              socket.emit("messages_read", { 
-                readerId: currentUser._id,
-                senderId: selectedUser._id 
-              });
-            }).catch(console.error);
+            ).catch(console.error);
           }
         }
         
-        if (message.sender !== currentUser?._id && 
+        // Update unread count for the sender (only if not currently chatting with them)
+        if (message.sender !== currentUser?.user._id && 
             (!selectedUser || message.sender !== selectedUser._id)) {
           setUnreadCounts(prev => ({
             ...prev,
@@ -273,27 +108,26 @@ const Inbox = () => {
       if (selectedUser && currentUser) {
         setLoading(true);
         
+        // Notify server that user is now chatting with this person
         socket.emit("join_chat", { otherUserId: selectedUser._id });
         
         try {
+          console.log(currentUser.user._id, selectedUser._id);
+          
           const response = await axios.get(
-            `http://localhost:3000/api/messages/${currentUser._id}/${selectedUser._id}`,
+            `http://localhost:3000/api/messages/${currentUser.user._id}/${selectedUser._id}`,
             { withCredentials: true }
           );
           setMessages(response.data.messages);
 
+          // Mark messages as read when opening chat
           await axios.put(
             `http://localhost:3000/api/messages/mark-read/${selectedUser._id}`,
             {},
             { withCredentials: true }
           );
 
-          
-          socket.emit("messages_read", { 
-            readerId: currentUser._id,
-            senderId: selectedUser._id 
-          });
-
+          // Update unread count to 0 for this user
           setUnreadCounts(prev => ({
             ...prev,
             [selectedUser._id]: 0
@@ -305,22 +139,19 @@ const Inbox = () => {
           setLoading(false);
         }
       } else if (socket) {
-        
+        // If no user is selected, leave current chat
         socket.emit("leave_chat");
       }
     };
     fetchMessages();
   }, [selectedUser, currentUser, socket]);
 
-  
+  // Cleanup when component unmounts
   useEffect(() => {
     return () => {
       if (socket) {
         socket.emit("leave_chat");
       }
-      
-      addUserTimeouts.current.forEach(timeout => clearTimeout(timeout));
-      addUserTimeouts.current.clear();
     };
   }, [socket]);
 
@@ -335,13 +166,8 @@ const Inbox = () => {
   const sendMessage = async () => {
     if (!newMessage.trim() || !selectedUser || !currentUser) return;
 
-    if (isRequestChat && messageCount >= 5) {
-      alert("Message limit reached! Please accept or reject the offer first.");
-      return;
-    }
-
     const messageData = {
-      senderId: currentUser._id,
+      senderId: currentUser.user._id,
       receiverId: selectedUser._id,
       message: newMessage,
     };
@@ -356,72 +182,9 @@ const Inbox = () => {
       };
       setMessages((prev) => [...prev, tempMessage]);
       
-      if (isRequestChat) {
-        const newCount = messageCount + 1;
-        setMessageCount(newCount);
-    
-        if (newCount >= 5) {
-          setShowOfferButtons(true);
-        }
-      }
-      
       setNewMessage("");
-      
-      setTimeout(() => refreshUserList(), 1000);
-      
     } catch (error) {
       console.error("Error sending message:", error);
-    }
-  };
-
-  const handleAcceptOffer = async () => {
-    try {
-      await axios.put(`http://localhost:3000/api/request/accept/${requestId}`, {}, {
-        withCredentials: true,
-      });
-      
-      if (socket) {
-        socket.emit("send_message", {
-          senderId: currentUser._id,
-          receiverId: selectedUser._id,
-          message: "🎉 Offer accepted! Let's proceed with the request.",
-        });
-      }
-      setIsRequestChat(false);
-      setShowOfferButtons(false);
-      setRequestId(null);
-      setMessageCount(0);
-      
-      alert("Offer accepted successfully!");
-    } catch (error) {
-      console.error("Error accepting offer:", error);
-      alert("Failed to accept offer. Please try again.");
-    }
-  };
-
-  const handleRejectOffer = async () => {
-    try {
-      await axios.put(`http://localhost:3000/api/request/reject/${requestId}`, {}, {
-        withCredentials: true,
-      });
-      
-      if (socket) {
-        socket.emit("send_message", {
-          senderId: currentUser._id,
-          receiverId: selectedUser._id,
-          message: "❌ Offer rejected. Thank you for your time.",
-        });
-      }
-      
-      setIsRequestChat(false);
-      setShowOfferButtons(false);
-      setRequestId(null);
-      setMessageCount(0);
-      
-      alert("Offer rejected.");
-    } catch (error) {
-      console.error("Error rejecting offer:", error);
-      alert("Failed to reject offer. Please try again.");
     }
   };
 
@@ -487,29 +250,16 @@ const Inbox = () => {
         {selectedUser ? (
           <>
             {/* Chat Header */}
-            <div className="bg-white p-4 border-b border-gray-300 flex items-center justify-between">
-              <div className="flex items-center">
-                <img
-                  src={`http://localhost:3000/images/uploads/${selectedUser.profilepic}`}
-                  alt={selectedUser.name}
-                  className="w-10 h-10 rounded-full object-cover mr-3"
-                />
-                <div>
-                  <h2 className="font-semibold text-gray-900">{selectedUser.name}</h2>
-                  <p className="text-sm text-gray-500">Online</p>
-                </div>
+            <div className="bg-white p-4 border-b border-gray-300 flex items-center">
+              <img
+                src={`http://localhost:3000/images/uploads/${selectedUser.profilepic}`}
+                alt={selectedUser.name}
+                className="w-10 h-10 rounded-full object-cover mr-3"
+              />
+              <div>
+                <h2 className="font-semibold text-gray-900">{selectedUser.name}</h2>
+                <p className="text-sm text-gray-500">Online</p>
               </div>
-              
-              {isRequestChat && (
-                <div className="text-center">
-                  <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold">
-                    🤝 Request Chat
-                  </div>
-                  <div className="text-xs text-gray-600 mt-1">
-                    Messages: {messageCount}/5
-                  </div>
-                </div>
-              )}
             </div>
 
             {/* Messages */}
@@ -523,14 +273,14 @@ const Inbox = () => {
                   <div
                     key={message._id}
                     className={`flex ${
-                      message.sender === currentUser._id
+                      message.sender === currentUser.user._id
                         ? "justify-end"
                         : "justify-start"
                     }`}
                   >
                     <div
                       className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                        message.sender === currentUser._id
+                        message.sender === currentUser.user._id
                           ? "bg-blue-500 text-white"
                           : "bg-gray-200 text-gray-900"
                       }`}
@@ -538,7 +288,7 @@ const Inbox = () => {
                       <p className="text-sm">{message.message}</p>
                       <p
                         className={`text-xs mt-1 ${
-                          message.sender === currentUser._id
+                          message.sender === currentUser.user._id
                             ? "text-blue-100"
                             : "text-gray-500"
                         }`}
@@ -584,24 +334,6 @@ const Inbox = () => {
                 </button>
               </div>
             </div>
-
-            {/* Offer Buttons */}
-            {showOfferButtons && (
-              <div className="bg-white p-4 border-t border-gray-300 flex justify-end space-x-2">
-                <button
-                  onClick={handleAcceptOffer}
-                  className="bg-green-500 text-white rounded-full px-4 py-2 hover:bg-green-600 transition-colors"
-                >
-                  Accept Offer
-                </button>
-                <button
-                  onClick={handleRejectOffer}
-                  className="bg-red-500 text-white rounded-full px-4 py-2 hover:bg-red-600 transition-colors"
-                >
-                  Reject Offer
-                </button>
-              </div>
-            )}
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center bg-gray-50">

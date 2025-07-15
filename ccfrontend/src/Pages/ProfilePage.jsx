@@ -39,10 +39,10 @@ export default function ProfilePage({
         </div>
       )}
 
-      <div>
+      {/* <div>
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Fulfilled Requests</h2>
         <FulfilledRequests user={user} />
-      </div>
+      </div> */}
 
     </div>
   );
