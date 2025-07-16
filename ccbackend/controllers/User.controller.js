@@ -117,25 +117,9 @@ export async function uploadImage(req, res) {
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
-    const uploadResult = await new Promise((resolve, reject) => {
-      cloudinary.uploader.upload_stream(
-        {
-          folder: "campus-connect/profile-pictures",
-          transformation: [
-            { width: 400, height: 400, crop: "fill" },
-            { quality: "auto" },
-            { format: "auto" }
-          ]
-        },
-        (error, result) => {
-          if (error) {
-            reject(error);
-          } else {
-            resolve(result);
-          }
-        }
-      ).end(req.file.buffer);
-    });
+    
+    const uploadResult = await cloudinary.uploader.upload(req.file.path)
+console.log(uploadResult);
 
     if (user.profilepic && user.profilepic !== "default.jpeg") {
       deleteFile(user.profilepic);
