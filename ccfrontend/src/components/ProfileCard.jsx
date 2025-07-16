@@ -1,7 +1,8 @@
 import axios from "axios";
 import { useState, useRef } from "react";
-import { FiCamera, FiX } from "react-icons/fi";
+import { FiCamera, FiX, FiMessageSquare } from "react-icons/fi";
 import { format } from "date-fns";
+import { Link } from "react-router-dom";
 
 const ProfileCard = ({ user, fetchUser, showChangePhoto }) => {
   const fileInputRef = useRef(null);
@@ -23,13 +24,8 @@ const ProfileCard = ({ user, fetchUser, showChangePhoto }) => {
     }
   };
 
-  const handleImageClick = () => {
-    setShowModal(true);
-  };
-
-  const handleChangePhotoClick = () => {
-    fileInputRef.current.click();
-  };
+  const handleImageClick = () => setShowModal(true);
+  const handleChangePhotoClick = () => fileInputRef.current.click();
 
   return (
     <>
@@ -64,9 +60,19 @@ const ProfileCard = ({ user, fetchUser, showChangePhoto }) => {
               <span>Change Photo</span>
             </button>
           )}
+
+          {/* ✅ Message button */}
+          {!showChangePhoto && user?.user?._id && (
+            <Link
+              to={`/inbox?to=${user.user._id}`}
+              className="mt-3 inline-flex items-center gap-2 text-sm px-3 py-1.5 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition"
+            >
+              <FiMessageSquare size={16} />
+              Message
+            </Link>
+          )}
         </div>
 
-        {/* Extra Info */}
         <div className="space-y-2 text-sm text-gray-700 mt-2">
           <p>🎓 <span className="font-medium">Year:</span> {user?.user?.year}</p>
           <p>🏠 <span className="font-medium">Hostel Type:</span> {user?.user?.hosteller ? "Hosteller" : "Day Scholar"}</p>

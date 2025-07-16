@@ -6,6 +6,8 @@ import { Link } from "react-router-dom";
 
 const Inbox = () => {
   const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
@@ -15,154 +17,163 @@ const Inbox = () => {
   const socket = useSocket();
   const { user: currentUser } = APICalling();
 
+  // Fetch all users
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/api/users", {
+        const res = await axios.get("http://localhost:3000/api/users", {
           withCredentials: true,
         });
-        setUsers(response.data.users);
-      } catch (error) {
-        console.error("Error fetching users:", error);
+        setUsers(res.data.users);
+        setFilteredUsers(res.data.users); // Initialize filtered users
+      } catch (err) {
+        console.error("Error fetching users:", err);
       }
     };
     fetchUsers();
   }, []);
 
+  // Filter users based on search term
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredUsers(users);
+    } else {
+      const filtered = users.filter(
+        (user) =>
+          user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.email.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredUsers(filtered);
+    }
+  }, [searchTerm, users]);
+
+  // Fetch unread message counts
   useEffect(() => {
     const fetchUnreadCounts = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:3000/api/messages/unread-counts",
-          {
-            withCredentials: true,
-          }
-        );
-        const countsMap = {};
-        response.data.unreadCounts.forEach((item) => {
-          countsMap[item._id] = item.count;
+        const res = await axios.get("http://localhost:3000/api/messages/unread-counts", {
+          withCredentials: true,
         });
-        setUnreadCounts(countsMap);
-      } catch (error) {
-        console.error("Error fetching unread counts:", error);
+        const counts = {};
+        res.data.unreadCounts.forEach((item) => {
+          counts[item._id] = item.count;
+        });
+        setUnreadCounts(counts);
+      } catch (err) {
+        console.error("Error fetching unread counts:", err);
       }
     };
-    if (currentUser) {
-      fetchUnreadCounts();
-    }
+    if (currentUser) fetchUnreadCounts();
   }, [currentUser]);
 
+  // Socket join room
   useEffect(() => {
     if (currentUser && socket) {
       socket.emit("join_room", currentUser._id);
     }
   }, [currentUser, socket]);
 
+  // Receive message via socket
   useEffect(() => {
-    if (socket) {
-      socket.on("receive_message", (message) => {
-        if (
-          selectedUser &&
-          (message.sender === selectedUser._id ||
-            message.receiver === selectedUser._id)
-        ) {
-          if (message.sender !== currentUser.user._id) {
-            setMessages((prev) => [...prev, message]);
-            if (message.sender === selectedUser._id) {
-              axios
-                .put(
-                  `http://localhost:3000/api/messages/mark-read/${selectedUser._id}`,
-                  {},
-                  { withCredentials: true }
-                )
-                .catch(console.error);
-            }
-          }
-        }
-        if (
-          message.sender !== currentUser?.user._id &&
-          (!selectedUser || message.sender !== selectedUser._id)
-        ) {
-          setUnreadCounts((prev) => ({
-            ...prev,
-            [message.sender]: (prev[message.sender] || 0) + 1,
-          }));
-        }
-      });
+    if (!socket) return;
 
-      socket.on("unread_count_update", (data) => {
-        setUnreadCounts((prev) => ({
-          ...prev,
-          [data.senderId]: data.count,
-        }));
-      });
-
-      return () => {
-        socket.off("receive_message");
-        socket.off("unread_count_update");
-      };
-    }
-  }, [socket, selectedUser, currentUser]);
-
-  useEffect(() => {
-    const fetchMessages = async () => {
-      if (selectedUser && currentUser) {
-        setLoading(true);
-        socket.emit("join_chat", { otherUserId: selectedUser._id });
-        try {
-          const response = await axios.get(
-            `http://localhost:3000/api/messages/${currentUser.user._id}/${selectedUser._id}`,
-            {
-              withCredentials: true,
-            }
-          );
-          setMessages(response.data.messages);
-          await axios.put(
+    const handleReceive = (message) => {
+      if (
+        selectedUser &&
+        (message.sender === selectedUser._id || message.receiver === selectedUser._id)
+      ) {
+        setMessages((prev) => [...prev, message]);
+        if (message.sender === selectedUser._id) {
+          axios.put(
             `http://localhost:3000/api/messages/mark-read/${selectedUser._id}`,
             {},
             { withCredentials: true }
-          );
-          setUnreadCounts((prev) => ({ ...prev, [selectedUser._id]: 0 }));
-        } catch (error) {
-          console.error("Error fetching messages:", error);
-        } finally {
-          setLoading(false);
+          ).catch(console.error);
         }
-      } else if (socket) {
-        socket.emit("leave_chat");
+      } else {
+        setUnreadCounts((prev) => ({
+          ...prev,
+          [message.sender]: (prev[message.sender] || 0) + 1,
+        }));
+      }
+    };
+
+    socket.on("receive_message", handleReceive);
+    socket.on("unread_count_update", (data) => {
+      setUnreadCounts((prev) => ({
+        ...prev,
+        [data.senderId]: data.count,
+      }));
+    });
+
+    return () => {
+      socket.off("receive_message", handleReceive);
+      socket.off("unread_count_update");
+    };
+  }, [socket, selectedUser, currentUser]);
+
+  // Fetch chat messages
+  useEffect(() => {
+    const fetchMessages = async () => {
+      if (!selectedUser || !currentUser) return;
+
+      setLoading(true);
+      socket.emit("join_chat", { otherUserId: selectedUser._id });
+      try {
+        const res = await axios.get(
+          `http://localhost:3000/api/messages/${currentUser.user._id}/${selectedUser._id}`,
+          { withCredentials: true }
+        );
+        setMessages(res.data.messages);
+        await axios.put(
+          `http://localhost:3000/api/messages/mark-read/${selectedUser._id}`,
+          {},
+          { withCredentials: true }
+        );
+        setUnreadCounts((prev) => ({ ...prev, [selectedUser._id]: 0 }));
+      } catch (err) {
+        console.error("Error fetching messages:", err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchMessages();
   }, [selectedUser, currentUser, socket]);
 
+  // Auto-scroll to bottom
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (socket) socket.emit("leave_chat");
     };
   }, [socket]);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
   const sendMessage = async () => {
     if (!newMessage.trim() || !selectedUser || !currentUser) return;
-    const messageData = {
+
+    const msg = {
       senderId: currentUser.user._id,
       receiverId: selectedUser._id,
       message: newMessage,
     };
+
     try {
-      socket.emit("send_message", messageData);
-      const tempMessage = {
-        ...messageData,
-        _id: Date.now().toString(),
-        createdAt: new Date(),
-      };
-      setMessages((prev) => [...prev, tempMessage]);
+      socket.emit("send_message", msg);
+      setMessages((prev) => [
+        ...prev,
+        {
+          ...msg,
+          _id: Date.now().toString(),
+          createdAt: new Date(),
+        },
+      ]);
       setNewMessage("");
-    } catch (error) {
-      console.error("Error sending message:", error);
+    } catch (err) {
+      console.error("Error sending message:", err);
     }
   };
 
@@ -173,58 +184,77 @@ const Inbox = () => {
     });
 
   return (
-    <div className="h-screen bg-gray-100 flex flex-col sm:flex-row">
-      {/* User List (Mobile hidden if chat is open) */}
+    <div className="h-screen flex flex-col sm:flex-row">
+      {/* Sidebar Users */}
       <div
-        className={`sm:w-1/3 bg-white border-r border-gray-300 overflow-y-auto ${
+        className={`sm:w-1/3 bg-white border-r overflow-y-auto ${
           selectedUser ? "hidden sm:block" : "block"
-        } `}
+        }`}
       >
-        <div className="p-4 border-b border-gray-300">
-          <h1 className="text-xl font-bold text-gray-800">💬 Chats</h1>
-        </div>
-        {users.map((user) => (
-          <div
-            key={user._id}
-            onClick={() => setSelectedUser(user)}
-            className={`flex items-center p-4 border-b cursor-pointer hover:bg-gray-50 ${
-              selectedUser?._id === user._id ? "bg-blue-50 border-blue-200" : ""
-            }`}
-          >
-            <Link
-                to={`/user/${user._id}`}
-                className="flex items-center gap-2"
-              >
-            <img
-              src={`http://localhost:3000/images/uploads/${user.profilepic}`}
-              alt={user.name}
-              className="w-9 h-9 rounded-full mr-3 object-cover ring-2 ring-violet-300 ring-offset-2 ring-offset-white"
+        <div className="p-4 border-b">
+          <h1 className="text-xl font-bold mb-3">💬 Chats</h1>
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search users..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            </Link>
-            <div className="flex-1">
-              <h3 className="font-semibold text-gray-900 text-sm">
-                {user.name}
-              </h3>
-              <p className="text-xs text-gray-500 truncate">{user.email}</p>
-            </div>
-            {unreadCounts[user._id] > 0 && (
-              <div className="bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-                {unreadCounts[user._id]}
-              </div>
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm("")}
+                className="absolute right-3 top-2 text-gray-400 hover:text-gray-600"
+              >
+                ✕
+              </button>
             )}
           </div>
-        ))}
+        </div>
+        {filteredUsers.length > 0 ? (
+          filteredUsers.map((user) => (
+            <div
+              key={user._id}
+              onClick={() => setSelectedUser(user)}
+              className={`flex items-center p-4 border-b cursor-pointer hover:bg-gray-50 ${
+                selectedUser?._id === user._id ? "bg-blue-50" : ""
+              }`}
+            >
+              <Link to={`/user/${user._id}`} className="flex items-center gap-2">
+                <img
+                  src={`http://localhost:3000/images/uploads/${user.profilepic}`}
+                  alt={user.name}
+                  className="w-9 h-9 rounded-full object-cover ring-2 ring-violet-300 ring-offset-2"
+                />
+              </Link>
+              <div className="ml-3 flex-1">
+                <h3 className="font-semibold text-sm">{user.name}</h3>
+                <p className="text-xs text-gray-500 truncate">{user.email}</p>
+              </div>
+              {unreadCounts[user._id] > 0 && (
+                <div className="bg-green-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                  {unreadCounts[user._id]}
+                </div>
+              )}
+            </div>
+          ))
+        ) : (
+          <div className="p-4 text-center text-gray-500">
+            No users found matching "{searchTerm}"
+          </div>
+        )}
       </div>
 
-      {/* Chat area */}
+      {/* Chat Area */}
       <div
-        className={`flex-1 flex flex-col ${
+        className={`flex-1 flex flex-col relative ${
           !selectedUser ? "hidden sm:flex" : "flex"
         }`}
       >
         {selectedUser ? (
           <>
-            <div className="bg-white p-4 border-b flex items-center">
+            {/* Chat Header */}
+            <div className="bg-white p-4 border-b flex items-center sticky top-0 z-20">
               <button
                 onClick={() => setSelectedUser(null)}
                 className="sm:hidden text-lg mr-3"
@@ -238,20 +268,20 @@ const Inbox = () => {
                 <img
                   src={`http://localhost:3000/images/uploads/${selectedUser.profilepic}`}
                   alt={selectedUser.name}
-                  className="w-9 h-9 rounded-full mr-3 object-cover ring-2 ring-violet-300 ring-offset-2 ring-offset-white"
+                  className="w-9 h-9 rounded-full object-cover ring-2 ring-violet-300 ring-offset-2"
                 />
               </Link>
-              <div>
-                <h2 className="font-semibold text-gray-900 text-sm">
-                  {selectedUser.name}
-                </h2>
+              <div className="ml-3">
+                <h2 className="font-semibold text-sm">{selectedUser.name}</h2>
                 <p className="text-xs text-gray-500">Online</p>
               </div>
             </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 pb-[90px]">
               {loading ? (
                 <div className="flex justify-center items-center h-full">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                  <div className="animate-spin h-8 w-8 border-b-2 border-blue-500 rounded-full" />
                 </div>
               ) : (
                 messages.map((message) => (
@@ -280,7 +310,9 @@ const Inbox = () => {
               )}
               <div ref={messagesEndRef} />
             </div>
-            <div className="bg-white p-3 border-t flex items-center space-x-2">
+
+            {/* Input Fixed */}
+            <div className="fixed bottom-[56px] sm:bottom-0 left-0 right-0 bg-white p-3 border-t flex items-center space-x-2 z-30 sm:static">
               <input
                 type="text"
                 value={newMessage}
