@@ -1,22 +1,20 @@
-import multer from "multer";
-import Crypto from "crypto";
-import path from "path";
 
+import multer from 'multer';
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, './public/images/uploads');
+const storage = multer.memoryStorage();
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, 
   },
-  filename: function (req, file, cb) {
-    Crypto.randomBytes(12, (err, bytes) => {
-      if (err) return cb(err);
-
-      const fn = bytes.toString('hex') + path.extname(file.originalname);
-      cb(null, fn);
-    });
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'), false);
+    }
   }
 });
-
-const upload = multer({ storage: storage });
 
 export default upload;

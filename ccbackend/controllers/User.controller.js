@@ -3,6 +3,7 @@ import userModel from "../models/user-model.js";
 import { generateToken } from "../utils/generateTokens.js";
 import { hashedPassword } from "../utils/hashPassword.js";
 import { deleteFile } from "../utils/deleteFile.js";
+import cloudinary from "../utils/cloudinary.js";
 
 function capitalizeFirstAndLastWord(str) {
   if (!str) return "";
@@ -116,12 +117,31 @@ export async function uploadImage(req, res) {
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
+    const uploadResult = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        {
+          folder: "campus-connect/profile-pictures",
+          transformation: [
+            { width: 400, height: 400, crop: "fill" },
+            { quality: "auto" },
+            { format: "auto" }
+          ]
+        },
+        (error, result) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(result);
+          }
+        }
+      ).end(req.file.buffer);
+    });
 
     if (user.profilepic && user.profilepic !== "default.jpeg") {
       deleteFile(user.profilepic);
     }
 
-    user.profilepic = req.file.filename;
+    user.profilepic = uploadResult.secure_url;
     await user.save();
 
     res.status(200).json({
