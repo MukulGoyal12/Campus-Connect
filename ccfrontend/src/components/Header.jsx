@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
 import {
-  FaGraduationCap,
   FaHome,
   FaSignOutAlt,
   FaShoppingCart,
@@ -33,12 +32,8 @@ const Header = () => {
     try {
       const response = await axios.get(
         "http://localhost:3000/api/messages/unread-counts",
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
-
-      // Calculate total unread messages
       const total = response.data.unreadCounts.reduce(
         (sum, item) => sum + item.count,
         0
@@ -65,25 +60,19 @@ const Header = () => {
     fetchUnreadCount();
   }, []);
 
-  // Socket listeners for real-time unread count updates
   useEffect(() => {
     if (socket && user) {
       socket.emit("join_room", user._id);
 
       socket.on("receive_message", (message) => {
-        // Only update count if message is not from current user
         if (message.sender !== user._id) {
           setTotalUnreadCount((prev) => prev + 1);
         }
       });
 
-      socket.on("unread_count_update", () => {
-        // Refetch the complete unread count when there's an update
-        fetchUnreadCount();
-      });
+      socket.on("unread_count_update", fetchUnreadCount);
 
       socket.on("messages_read", (data) => {
-        // Decrease count when messages are marked as read
         if (data.count) {
           setTotalUnreadCount((prev) => Math.max(0, prev - data.count));
         }
@@ -99,73 +88,66 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm border-b">
-      <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
-          <Logo/>
+      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+        {/* ✅ Logo remains */}
+        <Logo />
 
-        <nav className="flex items-center gap-5">
-  <Link
-    to="/home"
-    className="flex flex-col items-center text-gray-700 hover:text-blue-600 transition-transform duration-300 hover:scale-105 hover:-rotate-3"
-  >
-    <FaHome className="text-2xl" />
-    <span className="text-[11px]">Home</span>
-  </Link>
-
-  <Link
-    to="/marketplace"
-    className="flex flex-col items-center text-gray-700 hover:text-blue-600 transition-transform duration-300 hover:scale-105 hover:rotate-3"
-  >
-    <FaShoppingCart className="text-2xl" />
-    <span className="text-[11px]">Market</span>
-  </Link>
-
-  <Link
-    to="/inbox"
-    className="flex flex-col items-center text-gray-700 hover:text-blue-600 transition-transform duration-300 hover:scale-105 hover:-rotate-3 relative"
-  >
-    <div className="relative">
-      <FaEnvelope className="text-2xl" />
-      {totalUnreadCount > 0 && (
-        <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-          {totalUnreadCount > 99 ? "99+" : totalUnreadCount}
-        </div>
-      )}
-    </div>
-    <span className="text-[11px]">Inbox</span>
-  </Link>
-
-  <Link
-    to="/notifications"
-    className="flex flex-col items-center text-gray-700 hover:text-blue-600 transition-transform duration-300 hover:scale-105 hover:rotate-3"
-  >
-    <FaBell className="text-2xl" />
-    <span className="text-[11px]">Notifications</span>
-  </Link>
-
-  <Link
-    to="/profile"
-    className="flex flex-col items-center text-gray-700 hover:text-blue-600 transition-transform duration-300 hover:scale-105 hover:-rotate-3"
-  >
-    <img
-      src={`http://localhost:3000/images/uploads/${user?.profilepic}`}
-      alt="Profile"
-      className="w-9 h-9 rounded-full object-cover border"
-    />
-    <span className="text-[11px]">Profile</span>
-  </Link>
-
-  <button
-    onClick={handleLogout}
-    className="flex flex-col items-center text-gray-700 hover:text-red-600 transition-transform duration-300 hover:scale-105 hover:rotate-3"
-  >
-    <FaSignOutAlt className="text-2xl" />
-    <span className="text-[11px]">Logout</span>
-  </button>
-</nav>
-
+        {/* ✅ Desktop-only nav (mobile handled via MobileFooter) */}
+        <nav className="hidden md:flex items-center gap-4 lg:gap-5">
+          <NavIcon to="/home" icon={<FaHome />} label="Home" />
+          <NavIcon to="/marketplace" icon={<FaShoppingCart />} label="Market" />
+          <NavIcon
+            to="/inbox"
+            icon={<FaEnvelope />}
+            label="Inbox"
+            unreadCount={totalUnreadCount}
+          />
+          <NavIcon
+            to="/notifications"
+            icon={<FaBell />}
+            label="Notifications"
+          />
+          <NavIcon
+            to="/profile"
+            image={`http://localhost:3000/images/uploads/${user?.profilepic}`}
+            label="Profile"
+          />
+          <button
+            onClick={handleLogout}
+            className="flex flex-col items-center text-gray-700 hover:text-red-600 transition-transform duration-300 hover:scale-105 hover:rotate-3"
+          >
+            <FaSignOutAlt className="text-2xl" />
+            <span className="text-[11px]">Logout</span>
+          </button>
+        </nav>
       </div>
     </header>
   );
 };
+
+const NavIcon = ({ to, icon, label, unreadCount, image }) => (
+  <Link
+    to={to}
+    className="flex flex-col items-center text-gray-700 hover:text-blue-600 transition-transform duration-300 hover:scale-105 hover:-rotate-3 relative"
+  >
+    <div className="relative">
+      {image ? (
+        <img
+          src={image}
+          alt="Profile"
+          className="w-9 h-9 md:w-10 md:h-10 rounded-full object-cover border"
+        />
+      ) : (
+        <div className="text-xl md:text-2xl lg:text-xl">{icon}</div>
+      )}
+      {unreadCount > 0 && (
+        <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+          {unreadCount > 99 ? "99+" : unreadCount}
+        </div>
+      )}
+    </div>
+    <span className="text-[10px] md:text-[11px] lg:text-[10px]">{label}</span>
+  </Link>
+);
 
 export default Header;

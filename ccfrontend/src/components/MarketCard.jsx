@@ -71,7 +71,7 @@ function MarketCard({ listings }) {
           📭 No listings available yet.
         </p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
           {[...listings]
             .sort((a, b) => {
               if (a.sold === b.sold) return 0;
@@ -80,9 +80,9 @@ function MarketCard({ listings }) {
             .map((item) => (
               <div
                 key={item._id}
-                className="border rounded-2xl shadow-md bg-white flex flex-col h-full transition-all hover:scale-[1.015] hover:shadow-lg duration-300"
+                className="border rounded-2xl shadow-sm bg-white flex flex-col h-full transition-all hover:scale-[1.015] hover:shadow-lg duration-300"
               >
-                <div className="relative bg-gray-100 h-64 flex items-center justify-center rounded-t-2xl overflow-hidden">
+                <div className="relative bg-gray-100 h-48 sm:h-56 md:h-64 flex items-center justify-center rounded-t-2xl overflow-hidden">
                   <img
                     src={`http://localhost:3000/images/uploads/${item.image}`}
                     alt={item.title}
@@ -90,7 +90,7 @@ function MarketCard({ listings }) {
                   />
                 </div>
 
-                <div className="p-5 flex flex-col flex-grow justify-between">
+                <div className="p-4 sm:p-5 flex flex-col flex-grow justify-between">
                   <span className="inline-block w-fit mb-2 text-xs font-semibold text-purple-700 bg-purple-100 px-2 py-0.5 rounded">
                     🏷️ {item.category}
                   </span>
@@ -106,7 +106,7 @@ function MarketCard({ listings }) {
                     </span>
                   </p>
 
-                  <p className="text-green-600 font-semibold text-[15px] mb-3">
+                  <p className="text-green-600 font-semibold text-sm mb-3">
                     💰 Base Price: ₹{item.basePrice}
                   </p>
 
@@ -119,19 +119,19 @@ function MarketCard({ listings }) {
                             : `http://localhost:3000/images/default.png`
                         }
                         alt={item.seller.name}
-                        className="w-12 h-12 rounded-full object-cover ring-2 ring-purple-500 hover:scale-105 transition duration-300"
+                        className="w-11 h-11 sm:w-12 sm:h-12 rounded-full object-cover ring-2 ring-purple-500 hover:scale-105 transition duration-300"
                       />
                     </Link>
                     <div>
-                      <p className="text-[14px] font-semibold text-gray-800">
+                      <p className="text-[13px] sm:text-sm font-semibold text-gray-800">
                         👤 Seller:{" "}
                         <span className="font-normal">{item.seller.name}</span>
                       </p>
-                      <p className="text-[13px] font-medium text-gray-700">
+                      <p className="text-[12px] sm:text-[13px] font-medium text-gray-700">
                         ✉️ Email:{" "}
                         <span className="font-normal">{item.seller.email}</span>
                       </p>
-                      <p className="text-[13px] font-medium text-gray-600">
+                      <p className="text-[12px] sm:text-[13px] font-medium text-gray-600">
                         📅 Listed On:{" "}
                         <span className="font-normal">
                           {formatDate(item.createdAt)}
@@ -141,18 +141,18 @@ function MarketCard({ listings }) {
                   </div>
                 </div>
 
-                <div className="px-5 pb-5 pt-3">
+                <div className="px-4 sm:px-5 pb-4 pt-2">
                   <button
                     onClick={() => handleClick(item)}
                     disabled={!currentUserId || item.sold}
-                    className={`w-full text-[15px] flex items-center justify-center gap-2 font-semibold py-2.5 rounded-full shadow-md transition-all duration-300
-      ${
-        item.sold
-          ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-          : "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 hover:shadow-lg"
-      }
-      ${!currentUserId ? "opacity-60 cursor-not-allowed" : ""}
-    `}
+                    className={`w-full text-sm sm:text-[15px] flex items-center justify-center gap-2 font-semibold py-2 rounded-full shadow-sm transition-all duration-300
+            ${
+              item.sold
+                ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                : "bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 hover:shadow-lg"
+            }
+            ${!currentUserId ? "opacity-60 cursor-not-allowed" : ""}
+          `}
                   >
                     ⚡ {item.sold ? "Sold" : "Buy Now"}
                   </button>

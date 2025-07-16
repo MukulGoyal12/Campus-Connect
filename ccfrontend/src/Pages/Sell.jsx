@@ -10,10 +10,25 @@ const Sell = () => {
     image: null,
   });
 
+  const toTitleCase = (str) =>
+    str
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+
+  const capitalizeFirst = (str) =>
+    str.charAt(0).toUpperCase() + str.slice(1);
+
   const handleChange = (e) => {
     const { name, value, files } = e.target;
+
     if (name === "image") {
       setFormData({ ...formData, image: files[0] });
+    } else if (name === "title") {
+      setFormData({ ...formData, title: toTitleCase(value) });
+    } else if (name === "description") {
+      setFormData({ ...formData, description: capitalizeFirst(value) });
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -48,9 +63,9 @@ const Sell = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-5 py-10">
-      <div className="bg-white shadow-lg rounded-2xl p-8 border border-gray-200">
-        <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+    <div className="max-w-2xl mx-auto px-4 sm:px-5 py-6 sm:py-10">
+      <div className="bg-white shadow-lg rounded-2xl p-5 sm:p-8 border border-gray-200">
+        <h2 className="text-md sm:text-3xl font-bold text-gray-800 mb-6 text-center">
           📤 List an Item for Sale
         </h2>
 
@@ -85,7 +100,7 @@ const Sell = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 💰 Base Price (₹)
@@ -114,16 +129,12 @@ const Sell = () => {
               >
                 <option value="">Select Category</option>
                 <option value="Books">Books</option>
-                <option value="Notes & Study Material">
-                  Notes & Study Material
-                </option>
+                <option value="Notes & Study Material">Notes & Study Material</option>
                 <option value="Room Essentials">Room Essentials</option>
                 <option value="Electronics">Electronics</option>
                 <option value="Sports Items">Sports Items</option>
                 <option value="Event Tickets">Event Tickets</option>
-                <option value="Clothes & Accessories">
-                  Clothes & Accessories
-                </option>
+                <option value="Clothes & Accessories">Clothes & Accessories</option>
                 <option value="Hostel Utilities">Hostel Utilities</option>
                 <option value="Second Hand Mobiles">Second Hand Mobiles</option>
                 <option value="Board Games / Cards">Board Games / Cards</option>

@@ -51,13 +51,15 @@ function HomeRequestCard({ requests }) {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-4 space-y-6">
-      <h1 className="text-3xl font-bold text-gray-800 mb-4">📌 Latest Requests</h1>
+    <div className="max-w-6xl mx-auto p-3 sm:p-4 space-y-6">
+      <h1 className="text-lg sm:text-2xl font-bold text-gray-800 mb-4">
+        📌 Latest Requests
+      </h1>
 
       {requests.length === 0 ? (
         <p className="text-gray-500 text-center">No requests available yet.</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {[...requests]
             .sort((a, b) => {
               if (a.isAccepted === b.isAccepted) return 0;
@@ -66,15 +68,15 @@ function HomeRequestCard({ requests }) {
             .map((request) => (
               <div
                 key={request._id}
-                className="relative bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-lg transition duration-300 flex flex-col justify-between h-[230px]"
+                className="relative bg-white border border-gray-200 rounded-xl p-3 sm:p-4 shadow-sm hover:shadow-lg transition duration-300 flex flex-col justify-between h-auto"
               >
                 <div className="space-y-1 mb-2">
-                  <h2 className="text-[17px] font-semibold text-gray-800">
+                  <h2 className="text-[15px] sm:text-[17px] font-semibold text-gray-800">
                     📖 {request.task}
                   </h2>
-                  <p className="text-gray-600 text-[14px]">
+                  <p className="text-gray-600 text-[13px] sm:text-[14px]">
                     💸 Offer:{" "}
-                    <span className="text-green-600 font-medium">₹{request.offer}</span>
+                    <span className="text-green-600 font-medium">{request.offer}</span>
                   </p>
                 </div>
 
@@ -89,10 +91,10 @@ function HomeRequestCard({ requests }) {
                       className="w-9 h-9 rounded-full object-cover border"
                     />
                     <div>
-                      <p className="text-[13px] font-medium text-gray-800">
+                      <p className="text-[12px] sm:text-[13px] font-medium text-gray-800">
                         {request.requester.name}
                       </p>
-                      <p className="text-[11px] text-gray-500">
+                      <p className="text-[10px] sm:text-[11px] text-gray-500">
                         {format(new Date(request.createdAt), "dd MMM yyyy")}
                       </p>
                     </div>
@@ -113,7 +115,7 @@ function HomeRequestCard({ requests }) {
                   <button
                     onClick={() => handleAccept(request)}
                     disabled={request.isAccepted}
-                    className={`flex items-center gap-2 text-sm font-medium px-3 py-1.5 rounded-lg transition-all duration-200 border
+                    className={`flex items-center gap-2 text-xs sm:text-sm font-medium px-3 py-1.5 rounded-lg transition-all duration-200 border
                       ${
                         request.isAccepted
                           ? "bg-green-50 text-green-600 border-green-200 cursor-not-allowed"
