@@ -3,7 +3,6 @@ import userModel from "../models/user-model.js";
 import { generateToken } from "../utils/generateTokens.js";
 import { hashedPassword } from "../utils/hashPassword.js";
 import { deleteFile } from "../utils/deleteFile.js";
-import cloudinary from "../utils/cloudinary.js";
 
 function capitalizeFirstAndLastWord(str) {
   if (!str) return "";
