@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 
 const AddRequest = ({ onClose, onRequestAdded }) => {
+  
   const [RequestData, setRequestData] = useState({
     task: "",
     offer: "",
@@ -24,11 +25,13 @@ const AddRequest = ({ onClose, onRequestAdded }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     axios
-      .post("http://localhost:3000/api/request", RequestData, {
-        withCredentials: true,
+      .post(`${import.meta.env.VITE_API}/api/request`, RequestData, {
+        headers:{
+          "Authorization":"Bearer " + document.cookie.get("token"),
+        }
       })
       .then((res) => {
-        // console.log("Request added:", res.data);
+        console.log("Request added:", res.data);
         onRequestAdded();
         onClose();
       })
