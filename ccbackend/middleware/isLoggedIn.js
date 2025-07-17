@@ -4,7 +4,7 @@ import UserModel from "../models/user-model.js";
 const isLoggedIn = async (req, res, next) => {
   console.log(req);
   
-  const token = req.cookies.token;
+  const token = req.headers.get("Authorization")?.split(" ")[1] || req.cookies.token;
 
   if (!token) {
     return res.status(401).json({ message: "Unauthorized: No token provided" });
