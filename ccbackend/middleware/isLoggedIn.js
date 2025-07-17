@@ -2,6 +2,8 @@ import jwt from "jsonwebtoken";
 import UserModel from "../models/user-model.js";
 
 const isLoggedIn = async (req, res, next) => {
+  console.log(req);
+  
   const token = req.cookies.token;
 
   if (!token) {
