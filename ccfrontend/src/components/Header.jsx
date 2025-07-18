@@ -24,7 +24,7 @@ const Header = () => {
       .get(`${import.meta.env.VITE_API}/api/user`, {
         withCredentials:true,
         headers: {
-          Authorization: "Bearer " + document.cookie.substring(6),
+          Authorization: "Bearer " + localStorage.getItem("token"),
           "Content-Type": "application/json",
         },
 
@@ -41,7 +41,7 @@ const Header = () => {
       .get(`${import.meta.env.VITE_API}/api/messages/unread-counts`, {
         withCredentials:true,
         headers: {
-          Authorization: "Bearer " + document.cookie.substring(6),
+          Authorization: "Bearer " + localStorage.getItem("token"),
           "Content-Type": "application/json",
         },
 
@@ -62,7 +62,7 @@ const Header = () => {
       .get(`${import.meta.env.VITE_API}/api/logout`, {
         withCredentials:true,
         headers: {
-          Authorization: "Bearer " + document.cookie.substring(6),
+          Authorization: "Bearer " + localStorage.getItem("token"),
           "Content-Type": "application/json",
         },
 
@@ -74,8 +74,8 @@ const Header = () => {
   };
 
   useEffect(() => {
-    fetchUser();
-    fetchUnreadCount();
+    // fetchUser();
+    // fetchUnreadCount();
   }, []);
 
   useEffect(() => {
@@ -127,7 +127,7 @@ const Header = () => {
           />
           <NavIcon
             to="/profile"
-            image={`${import.meta.env.VITE_API}/images/uploads/${user?.profilepic}`}
+            image={`default.jpeg`}
             label="Profile"
           />
           <button

@@ -21,13 +21,7 @@ const Login = () => {
       return;
     }
 axios
-      .post(`${import.meta.env.VITE_API}/api/login`, loginData, {
-        withCredentials: true,
-        headers: {
-          Authorization: "Bearer " + document.cookie.substring(6),
-          "Content-Type": "application/json",
-        },
-      })
+      .post(`${import.meta.env.VITE_API}/api/login`, loginData)
       .then((res) => {
         localStorage.setItem("token", res.data.token);
         navigate("/home");
