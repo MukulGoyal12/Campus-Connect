@@ -57,6 +57,8 @@ export async function login(req, res) {
   try {
     const { email, password } = req.body;
     const user = await userModel.findOne({ email });
+    console.log(email+" "+password);
+    
     if (!user) {
       return res.status(404).send("User not found");
     }
@@ -65,7 +67,7 @@ export async function login(req, res) {
       if (err) return res.status(500).send("Error comparing passwords");
 
       if (result) {
-        const token = generateToken(user);
+        const token =  generateToken(user);
         res.cookie("token", token);
         return res.status(200).send("Login successful");
       } else {

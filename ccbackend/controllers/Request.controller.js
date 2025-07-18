@@ -81,6 +81,7 @@ export const AcceptRequest = async (req, res) => {
     if (!post) {
       return res.status(404).send("Request not found");
     }
+console.log(post.requester+" "+user);
 
     if (post.requester._id.toString() === user._id.toString()) {
       return res.status(400).send({message: "You cannot accept your own request" });

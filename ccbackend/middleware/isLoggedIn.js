@@ -2,8 +2,8 @@ import jwt from "jsonwebtoken";
 import UserModel from "../models/user-model.js";
 
 const isLoggedIn = async (req, res, next) => {
-  const token = req.cookies.token || req.headers['Authorization']?.split(" ")[1] || req.headers['authorization']?.split(" ")[1];
-console.log(token);
+  const token = req.cookie.token || req.headers['Authorization']?.split(" ")[1] || req.headers['authorization']?.split(" ")[1];
+console.log(token+" "+req.cookie);
 
   if (!token) {
     return res.status(401).json({ message: "Unauthorized: No token provided" });
