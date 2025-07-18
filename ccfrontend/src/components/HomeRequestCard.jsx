@@ -16,7 +16,7 @@ function HomeRequestCard({ requests }) {
       .get(`${import.meta.env.VITE_API}/api/user`, {
         withCredentials:true,
         headers: {
-          Authorization: "Bearer " + document.cookie.substring(6),
+          Authorization: "Bearer " + localStorage.getItem("token"),
           "Content-Type": "application/json",
         },
       })
@@ -31,7 +31,7 @@ function HomeRequestCard({ requests }) {
       .post(`${import.meta.env.VITE_API}/api/acceptRequest/${request._id}`, {}, {
         withCredentials:true,
         headers: {
-          Authorization: "Bearer " + document.cookie.substring(6),
+          Authorization: "Bearer " + localStorage.getItem("token"),
           "Content-Type": "application/json",
         },
 

@@ -11,7 +11,7 @@ export default function UserProfile() {
     const res = await axios.get(`${import.meta.env.VITE_API}/api/user/${id}`, {
       withCredentials: true,
       headers: {
-        Authorization: "Bearer " + document.cookie.substring(6),
+        Authorization: "Bearer " + localStorage.getItem("token"),
         "Content-Type": "application/json",
       },
     });

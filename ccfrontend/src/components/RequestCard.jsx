@@ -13,7 +13,7 @@ const RequestCard = ({ user, fetchUser, showDelete = true }) => {
         await axios.delete(`${import.meta.env.VITE_API}/api/request/${id}`, {
           withCredentials: true,
           headers: {
-            Authorization: "Bearer " + document.cookie.substring(6),
+            Authorization: "Bearer " + localStorage.getItem("token"),
             "Content-Type": "application/json",
           },
         });
@@ -31,7 +31,7 @@ const RequestCard = ({ user, fetchUser, showDelete = true }) => {
         {
           withCredentials: true,
           headers: {
-            Authorization: "Bearer " + document.cookie.substring(6),
+            Authorization: "Bearer " + localStorage.getItem("token"),
             "Content-Type": "application/json",
           },
         }

@@ -9,7 +9,7 @@ const APICalling = () => {
       const res = await axios.get(`${import.meta.env.VITE_API}/api/user`, {
         withCredentials: true,
         headers: {
-          Authorization: "Bearer " + document.cookie.substring(6),
+          Authorization: "Bearer " + localStorage.getItem("token"),
           "Content-Type": "application/json",
         },
       });
