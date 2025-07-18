@@ -19,7 +19,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:5173","https://campus-connect-git-master-mukul-goyals-projects-3fdfe1c0.vercel.app"],
+    origin: ["http://localhost:5173","https://campus-connect-brown.vercel.app","https://campus-connect-git-master-mukul-goyals-projects-3fdfe1c0.vercel.app"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
@@ -38,7 +38,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173","https://campus-connect-git-master-mukul-goyals-projects-3fdfe1c0.vercel.app"],
+    origin: ["http://localhost:5173","https://campus-connect-brown.vercel.app","https://campus-connect-git-master-mukul-goyals-projects-3fdfe1c0.vercel.app"],
     methods: ["GET", "POST"],
     credentials: true
   }
