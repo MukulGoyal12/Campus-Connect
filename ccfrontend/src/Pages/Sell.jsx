@@ -45,7 +45,7 @@ const Sell = () => {
 console.log(formData);
 
     try {
-      await axios.post(`${import.meta.env.VITE_API}/api/listings `, data, {
+      await axios.post(`http://localhost:3000/api/listings `, data, {
         withCredentials: true,
         headers: {
           Authorization: "Bearer " + localStorage.getItem("token"),

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { FiCamera, FiX, FiMessageSquare } from "react-icons/fi";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 const ProfileCard = ({ user, fetchUser, showChangePhoto }) => {
   const fileInputRef = useRef(null);
   const [showModal, setShowModal] = useState(false);
+  const [image,setImage] = useState(user.user.profilepic);
 
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files[0];
@@ -18,8 +19,8 @@ const ProfileCard = ({ user, fetchUser, showChangePhoto }) => {
         alert("Please select an image file.");
         return;
       }
-      await axios
-      .post(`${import.meta.env.VITE_API}/api/upload`, formData,{
+      const response=await axios
+      .post(`http://localhost:3000/api/upload`, formData,{
         withCredentials:true,
         headers: {
           Authorization: "Bearer " + localStorage.getItem("token"),
@@ -27,12 +28,17 @@ const ProfileCard = ({ user, fetchUser, showChangePhoto }) => {
 
         },
 
-      })
-      fetchUser();
+      });
+      setImage(response.data.profilepic)
+      // fetchUser();
+      
     } catch (err) {
       console.error("Upload error:", err);
     }
   };
+  useEffect(()=>{
+    handleFileChange()
+  },[image])
 
   const handleImageClick = () => setShowModal(true);
   const handleChangePhotoClick = () => fileInputRef.current.click();
@@ -43,7 +49,7 @@ const ProfileCard = ({ user, fetchUser, showChangePhoto }) => {
         <div className="flex flex-col items-center text-center">
           <div className="relative">
             <img
-              src={`${import.meta.env.VITE_API}/images/uploads/${user?.user?.profilepic}`}
+              src={image}
               alt="Profile"
               className="w-24 h-24 rounded-full object-cover cursor-pointer ring-2 ring-gray-300 hover:ring-purple-500 hover:scale-105 transition duration-300"
               onClick={handleImageClick}

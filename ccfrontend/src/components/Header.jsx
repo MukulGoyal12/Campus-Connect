@@ -12,7 +12,7 @@ import { useSocket } from "../provider/SocketProvider";
 import Logo from "./Logo";
 
 const Header = () => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState({});
   const [totalUnreadCount, setTotalUnreadCount] = useState(0);
   const navigate = useNavigate();
   const socket = useSocket();
@@ -74,8 +74,8 @@ const Header = () => {
   };
 
   useEffect(() => {
-    // fetchUser();
-    // fetchUnreadCount();
+    fetchUser();
+    fetchUnreadCount();
   }, []);
 
   useEffect(() => {
@@ -127,7 +127,7 @@ const Header = () => {
           />
           <NavIcon
             to="/profile"
-            image={`default.jpeg`}
+            image={user.profilepic}
             label="Profile"
           />
           <button

@@ -260,7 +260,7 @@ const Inbox = () => {
                 className="flex items-center gap-2"
               >
                 <img
-                  src={`${import.meta.env.VITE_API}/images/uploads/${user.profilepic}`}
+                  src={user.profilepic}
                   alt={user.name}
                   className="w-9 h-9 rounded-full object-cover ring-2 ring-violet-300 ring-offset-2"
                 />
@@ -304,7 +304,7 @@ const Inbox = () => {
                 className="flex items-center gap-2"
               >
                 <img
-                  src={`${import.meta.env.VITE_API}/images/uploads/${selectedUser.profilepic}`}
+                  src={selectedUser.profilepic}
                   alt={selectedUser.name}
                   className="w-9 h-9 rounded-full object-cover ring-2 ring-violet-300 ring-offset-2"
                 />

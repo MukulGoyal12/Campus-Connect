@@ -95,7 +95,7 @@ function HomeRequestCard({ requests }) {
                     className="flex items-center gap-2"
                   >
                     <img
-                      src={`${import.meta.env.VITE_API}/images/uploads/${request.requester.profilepic}`}
+                      src={request.requester.profilepic }
                       alt="Profile"
                       className="w-9 h-9 rounded-full object-cover border"
                     />
