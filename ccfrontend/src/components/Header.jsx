@@ -16,12 +16,19 @@ const Header = () => {
   const [totalUnreadCount, setTotalUnreadCount] = useState(0);
   const navigate = useNavigate();
   const socket = useSocket();
+  
 
   const fetchUser = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/api/user", {
-        withCredentials: true,
-      });
+      const res= await axios
+      .get(`${import.meta.env.VITE_API}/api/user`, {
+        withCredentials:true,
+        headers: {
+          Authorization: "Bearer " + document.cookie.substring(6),
+          "Content-Type": "application/json",
+        },
+
+      })
       setUser(res.data.user);
     } catch (err) {
       console.error("Fetch user error:", err);
@@ -30,10 +37,15 @@ const Header = () => {
 
   const fetchUnreadCount = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:3000/api/messages/unread-counts",
-        { withCredentials: true }
-      );
+      const response = await axios
+      .get(`${import.meta.env.VITE_API}/api/messages/unread-counts`, {
+        withCredentials:true,
+        headers: {
+          Authorization: "Bearer " + document.cookie.substring(6),
+          "Content-Type": "application/json",
+        },
+
+      })
       const total = response.data.unreadCounts.reduce(
         (sum, item) => sum + item.count,
         0
@@ -46,9 +58,15 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.get("http://localhost:3000/api/logout", {
-        withCredentials: true,
-      });
+      await axios
+      .get(`${import.meta.env.VITE_API}/api/logout`, {
+        withCredentials:true,
+        headers: {
+          Authorization: "Bearer " + document.cookie.substring(6),
+          "Content-Type": "application/json",
+        },
+
+      })
       navigate("/auth/login", { replace: true });
     } catch (err) {
       console.error("Logout error:", err);
@@ -109,7 +127,7 @@ const Header = () => {
           />
           <NavIcon
             to="/profile"
-            image={`http://localhost:3000/images/uploads/${user?.profilepic}`}
+            image={`${import.meta.env.VITE_API}/images/uploads/${user?.profilepic}`}
             label="Profile"
           />
           <button

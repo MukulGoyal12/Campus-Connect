@@ -14,10 +14,20 @@ const ProfileCard = ({ user, fetchUser, showChangePhoto }) => {
     formData.append("image", selectedFile);
 
     try {
-      await axios.post("http://localhost:3000/api/upload", formData, {
-        withCredentials: true,
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      if (!selectedFile) {
+        alert("Please select an image file.");
+        return;
+      }
+      await axios
+      .post(`${import.meta.env.VITE_API}/api/upload`, formData,{
+        withCredentials:true,
+        headers: {
+          Authorization: "Bearer " + document.cookie.substring(6),
+          "Content-Type": "multipart/form-data",
+
+        },
+
+      })
       fetchUser();
     } catch (err) {
       console.error("Upload error:", err);
@@ -33,7 +43,7 @@ const ProfileCard = ({ user, fetchUser, showChangePhoto }) => {
         <div className="flex flex-col items-center text-center">
           <div className="relative">
             <img
-              src={`http://localhost:3000/images/uploads/${user?.user?.profilepic}`}
+              src={`${import.meta.env.VITE_API}/images/uploads/${user?.user?.profilepic}`}
               alt="Profile"
               className="w-24 h-24 rounded-full object-cover cursor-pointer ring-2 ring-gray-300 hover:ring-purple-500 hover:scale-105 transition duration-300"
               onClick={handleImageClick}
@@ -93,7 +103,7 @@ const ProfileCard = ({ user, fetchUser, showChangePhoto }) => {
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
           <div className="relative">
             <img
-              src={`http://localhost:3000/images/uploads/${user?.user?.profilepic}`}
+              src={`${import.meta.env.VITE_API}/images/uploads/${user?.user?.profilepic}`}
               alt="Full Profile"
               className="w-72 h-72 md:w-80 md:h-80 rounded-full object-cover border-4 border-white shadow-2xl transition"
             />

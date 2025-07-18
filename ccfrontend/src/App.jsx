@@ -17,10 +17,16 @@ function App() {
   useEffect(() => {
     const fetchUnread = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/messages/unread-counts", {
-          withCredentials: true,
-        });
-
+       
+        const res= await axios
+        .get(`${import.meta.env.VITE_API}/api/messages/unread-counts`, {
+          withCredentials:true,
+          headers: {
+            Authorization: "Bearer " + document.cookie.substring(6),
+            "Content-Type": "application/json",
+          },
+  
+        })
         const total = res.data.unreadCounts.reduce(
           (sum, item) => sum + item.count,
           0

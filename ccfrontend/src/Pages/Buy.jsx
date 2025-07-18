@@ -7,8 +7,12 @@ const Buy = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const fetchListings = async () => {
-    const res = await axios.get("http://localhost:3000/api/allListings", {
+    const res = await axios.get(`${import.meta.env.VITE_API}/api/allListings`, {
       withCredentials: true,
+      headers: {
+        Authorization: "Bearer " + document.cookie.substring(6),
+        "Content-Type": "application/json",
+      },
     });
     setListings(res.data.listings);
   };

@@ -10,8 +10,12 @@ const RequestCard = ({ user, fetchUser, showDelete = true }) => {
   const handleDelete = async (id) => {
     try {
       if (window.confirm("Are you sure you want to delete this request?")) {
-        await axios.delete(`http://localhost:3000/api/request/${id}`, {
+        await axios.delete(`${import.meta.env.VITE_API}/api/request/${id}`, {
           withCredentials: true,
+          headers: {
+            Authorization: "Bearer " + document.cookie.substring(6),
+            "Content-Type": "application/json",
+          },
         });
         fetchUser();
       }
@@ -23,10 +27,13 @@ const RequestCard = ({ user, fetchUser, showDelete = true }) => {
   const handleAccept = async (request) => {
     try {
       await axios.post(
-        `http://localhost:3000/api/acceptRequest/${request._id}`,
-        {},
+        `${import.meta.env.VITE_API}/api/acceptRequest/${request._id}`,
         {
           withCredentials: true,
+          headers: {
+            Authorization: "Bearer " + document.cookie.substring(6),
+            "Content-Type": "application/json",
+          },
         }
       );
 

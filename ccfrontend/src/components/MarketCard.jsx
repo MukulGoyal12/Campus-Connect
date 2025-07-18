@@ -10,9 +10,14 @@ function MarketCard({ listings }) {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const res = await axios.get("http://localhost:3000/api/user", {
-        withCredentials: true,
-      });
+      const res= await axios
+      .get(`${import.meta.env.VITE_API}/api/user`, {
+        withCredentials:true,
+        headers: {
+          Authorization: "Bearer " + document.cookie.substring(6),
+          "Content-Type": "application/json",
+        },
+      })
       setCurrentUserId(res.data.user._id);
     };
     fetchUser();
@@ -20,11 +25,14 @@ function MarketCard({ listings }) {
 
   const handleClick = async (item) => {
     try {
-      await axios.post(
-        `http://localhost:3000/api/sold/${item._id}`,
-        {},
-        { withCredentials: true }
-      );
+      await axios
+      .post(`${import.meta.env.VITE_API}/api/sold/${item._id}`,{}, {
+        withCredentials:true,
+        headers: {
+          Authorization: "Bearer " + document.cookie.substring(6),
+          "Content-Type": "application/json",
+        },
+      })
     } catch (err) {
       if (err.response && err.response.data) {
         alert(
@@ -77,14 +85,17 @@ function MarketCard({ listings }) {
               if (a.sold === b.sold) return 0;
               return a.sold ? 1 : -1;
             })
-            .map((item) => (
+            .map((item) => {
+              console.log(item);
+              
+              return (
               <div
                 key={item._id}
                 className="border rounded-2xl shadow-sm bg-white flex flex-col h-full transition-all hover:scale-[1.015] hover:shadow-lg duration-300"
               >
                 <div className="relative bg-gray-100 h-48 sm:h-56 md:h-64 flex items-center justify-center rounded-t-2xl overflow-hidden">
                   <img
-                    src={`http://localhost:3000/images/uploads/${item.image}`}
+                    src={`${import.meta.env.VITE_API}/images/uploads/${item.image}`}
                     alt={item.title}
                     className="max-h-full max-w-full object-contain"
                   />
@@ -115,8 +126,8 @@ function MarketCard({ listings }) {
                       <img
                         src={
                           item.seller.profilepic
-                            ? `http://localhost:3000/images/uploads/${item.seller.profilepic}`
-                            : `http://localhost:3000/images/default.png`
+                            ? `${import.meta.env.VITE_API}/images/uploads/${item.seller.profilepic}`
+                            : `${import.meta.env.VITE_API}/images/default.png`
                         }
                         alt={item.seller.name}
                         className="w-11 h-11 sm:w-12 sm:h-12 rounded-full object-cover ring-2 ring-purple-500 hover:scale-105 transition duration-300"
@@ -158,7 +169,7 @@ function MarketCard({ listings }) {
                   </button>
                 </div>
               </div>
-            ))}
+)})}
         </div>
       )}
     </div>

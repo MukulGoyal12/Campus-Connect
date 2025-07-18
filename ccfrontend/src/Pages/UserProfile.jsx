@@ -8,11 +8,19 @@ export default function UserProfile() {
   const { id } = useParams();
 
   const fetchUser = async () => {
-    const res = await axios.get(`http://localhost:3000/api/user/${id}`, { withCredentials: true });
+    const res = await axios.get(`${import.meta.env.VITE_API}/api/user/${id}`, {
+      withCredentials: true,
+      headers: {
+        Authorization: "Bearer " + document.cookie.substring(6),
+        "Content-Type": "application/json",
+      },
+    });
     setUser(res.data.user);
   };
 
-  useEffect(() => { fetchUser(); }, [id]);
+  useEffect(() => {
+    fetchUser();
+  }, [id]);
 
   return user ? (
     <ProfilePage

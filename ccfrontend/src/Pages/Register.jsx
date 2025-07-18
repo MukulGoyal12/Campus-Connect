@@ -20,10 +20,16 @@ const Register = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     axios
-      .post("http://localhost:3000/api/register", formData, {
+      .post(`${import.meta.env.VITE_API}/api/register`, {
         withCredentials: true,
+        headers: {
+          Authorization: "Bearer " + document.cookie.substring(6),
+          "Content-Type": "application/json",
+        },
       })
+
       .then((res) => {
         // console.log(res.data);
         navigate("/home");
@@ -36,9 +42,12 @@ const Register = () => {
   return (
     <div className="min-h-screen flex">
       <div className="hidden md:flex w-1/2 bg-blue-900">
-        <div 
+        <div
           className="w-full h-full bg-cover bg-center"
-          style={{ backgroundImage: "url('https://source.unsplash.com/random/800x600?campus,university')" }}
+          style={{
+            backgroundImage:
+              "url('https://source.unsplash.com/random/800x600?campus,university')",
+          }}
         >
           <div className="h-full bg-black bg-opacity-40 flex items-center p-12">
             <div className="text-white">
@@ -60,7 +69,10 @@ const Register = () => {
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Full Name
               </label>
               <input
@@ -76,7 +88,10 @@ const Register = () => {
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 University Email
               </label>
               <input
@@ -92,7 +107,10 @@ const Register = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Password
               </label>
               <input
@@ -109,7 +127,10 @@ const Register = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="rollno" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="rollno"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Roll Number
                 </label>
                 <input
@@ -125,7 +146,10 @@ const Register = () => {
               </div>
 
               <div>
-                <label htmlFor="year" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="year"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Year
                 </label>
                 <input
@@ -142,7 +166,10 @@ const Register = () => {
             </div>
 
             <div>
-              <label htmlFor="hosteller" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="hosteller"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Accommodation Type
               </label>
               <select

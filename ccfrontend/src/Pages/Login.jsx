@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 const Login = () => {
   const [loginData, setLoginData] = useState({
     email: "",
-    password: ""
+    password: "",
   });
 
   const handleChange = (e) => {
@@ -14,38 +14,52 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit =  (e) => {
     e.preventDefault();
-    axios.post("http://localhost:3000/api/login", loginData, {
-      withCredentials: true
-    })
-    .then(res => {
-      navigate("/home");
-    })
-    .catch(err => {
-      if (err.response && err.response.data) {
-        alert(err.response.data.message || "Invalid credentials");
-      } else {
-        alert("Something went wrong. Try again.");
-      }
-      console.error("Login error:", err);
-    });
+    if (!loginData.email || !loginData.password) {
+      alert("Please fill in all fields.");
+      return;
+    }
+    axios
+      .post(`${import.meta.env.VITE_API}/api/login`, loginData, {
+        withCredentials: true,
+        headers: {
+          Authorization: "Bearer " + document.cookie.substring(6),
+          "Content-Type": "application/json",
+        },
+      })
+      .then((res) => {
+        navigate("/home");
+      })
+      .catch((err) => {
+        if (err.response && err.response.data) {
+          alert(err.response.data.message || "Invalid credentials");
+        } else {
+          alert("Something went wrong. Try again.");
+        }
+        console.error("Login error:", err);
+      });
   };
-  
 
   return (
     <div className="min-h-screen flex">
       {/* Left side with campus image */}
       <div className="hidden md:flex w-1/2 bg-blue-900">
-        <div 
+        <div
           className="w-full h-full bg-cover bg-center"
-          style={{ backgroundImage: "url('https://source.unsplash.com/random/800x600?campus')" }}
+          style={{
+            backgroundImage:
+              "url('https://source.unsplash.com/random/800x600?campus')",
+          }}
         >
           <div className="h-full bg-black bg-opacity-40 flex items-center p-12">
             <div className="text-white">
-              <h1 className="text-4xl font-bold mb-4">Connect with Your Campus</h1>
+              <h1 className="text-4xl font-bold mb-4">
+                Connect with Your Campus
+              </h1>
               <p className="text-xl">
-                Join thousands of students sharing experiences, opportunities, and campus life.
+                Join thousands of students sharing experiences, opportunities,
+                and campus life.
               </p>
             </div>
           </div>
@@ -54,18 +68,20 @@ const Login = () => {
 
       {/* Right side with login form */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-6">
-        <form
-          onSubmit={handleSubmit}
-          className="w-full max-w-md space-y-6"
-        >
+        <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6">
           <div className="text-center">
             <h2 className="text-3xl font-bold text-gray-800">Welcome Back</h2>
-            <p className="text-gray-500 mt-2">Sign in to continue to CampusConnect</p>
+            <p className="text-gray-500 mt-2">
+              Sign in to continue to CampusConnect
+            </p>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Email Address
               </label>
               <input
@@ -81,7 +97,10 @@ const Login = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Password
               </label>
               <input
@@ -105,12 +124,18 @@ const Login = () => {
                 type="checkbox"
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+              <label
+                htmlFor="remember-me"
+                className="ml-2 block text-sm text-gray-700"
+              >
                 Remember me
               </label>
             </div>
             <div className="text-sm">
-              <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
+              <a
+                href="#"
+                className="font-medium text-blue-600 hover:text-blue-500"
+              >
                 Forgot password?
               </a>
             </div>
@@ -125,8 +150,8 @@ const Login = () => {
 
           <p className="text-center text-sm text-gray-500">
             Don't have an account?{" "}
-            <Link 
-              to="/auth/register" 
+            <Link
+              to="/auth/register"
               className="font-medium text-blue-600 hover:text-blue-500 hover:underline"
             >
               Sign up

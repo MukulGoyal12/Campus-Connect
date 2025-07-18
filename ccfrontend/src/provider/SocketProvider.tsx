@@ -1,9 +1,9 @@
 import { useContext,createContext } from "react";
 import {io, Socket} from "socket.io-client"
-const SocketContext = createContext<Socket | null>(null);
-export default function SocketProvider({ children }: { children: React.ReactNode }) {
-    const socket = io("http://localhost:3000"   );
-    
+const SocketContext = createContext(null);
+export default function SocketProvider({ children }) {
+  
+    const socket = io(`${import.meta.env.VITE_API}`);    
     
     if (!socket) {
         throw new Error("Socket connection failed");

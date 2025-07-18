@@ -17,8 +17,7 @@ const Sell = () => {
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ");
 
-  const capitalizeFirst = (str) =>
-    str.charAt(0).toUpperCase() + str.slice(1);
+  const capitalizeFirst = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -43,10 +42,15 @@ const Sell = () => {
     data.append("basePrice", formData.basePrice);
     data.append("category", formData.category);
     data.append("image", formData.image);
+console.log(formData);
 
     try {
-      await axios.post("http://localhost:3000/api/listings", data, {
+      await axios.post(`${import.meta.env.VITE_API}/api/listings `, data, {
         withCredentials: true,
+        headers: {
+          Authorization: "Bearer " + document.cookie.substring(6),
+          "Content-Type": "application/json",
+        },
       });
       setFormData({
         title: "",
@@ -129,12 +133,16 @@ const Sell = () => {
               >
                 <option value="">Select Category</option>
                 <option value="Books">Books</option>
-                <option value="Notes & Study Material">Notes & Study Material</option>
+                <option value="Notes & Study Material">
+                  Notes & Study Material
+                </option>
                 <option value="Room Essentials">Room Essentials</option>
                 <option value="Electronics">Electronics</option>
                 <option value="Sports Items">Sports Items</option>
                 <option value="Event Tickets">Event Tickets</option>
-                <option value="Clothes & Accessories">Clothes & Accessories</option>
+                <option value="Clothes & Accessories">
+                  Clothes & Accessories
+                </option>
                 <option value="Hostel Utilities">Hostel Utilities</option>
                 <option value="Second Hand Mobiles">Second Hand Mobiles</option>
                 <option value="Board Games / Cards">Board Games / Cards</option>

@@ -21,8 +21,12 @@ const Inbox = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/users", {
+        const res = await axios.get(`${import.meta.env.VITE_API}/api/users`, {
           withCredentials: true,
+          headers: {
+            Authorization: "Bearer " + document.cookie.substring(6),
+            "Content-Type": "application/json",
+          },
         });
         setUsers(res.data.users);
         setFilteredUsers(res.data.users); // Initialize filtered users
@@ -51,9 +55,16 @@ const Inbox = () => {
   useEffect(() => {
     const fetchUnreadCounts = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/messages/unread-counts", {
-          withCredentials: true,
-        });
+        const res = await axios.get(
+          `${import.meta.env.VITE_API}/api/messages/unread-counts`,
+          {
+            withCredentials: true,
+            headers: {
+              Authorization: "Bearer " + document.cookie.substring(6),
+              "Content-Type": "application/json",
+            },
+          }
+        );
         const counts = {};
         res.data.unreadCounts.forEach((item) => {
           counts[item._id] = item.count;
@@ -77,18 +88,26 @@ const Inbox = () => {
   useEffect(() => {
     if (!socket) return;
 
-    const handleReceive = (message) => {
+    const handleReceive = async (message) => {
       if (
         selectedUser &&
-        (message.sender === selectedUser._id || message.receiver === selectedUser._id)
+        (message.sender === selectedUser._id ||
+          message.receiver === selectedUser._id)
       ) {
         setMessages((prev) => [...prev, message]);
         if (message.sender === selectedUser._id) {
-          axios.put(
-            `http://localhost:3000/api/messages/mark-read/${selectedUser._id}`,
-            {},
-            { withCredentials: true }
-          ).catch(console.error);
+          await axios.put(
+            `${import.meta.env.VITE_API}/api/messages/mark-read/${
+              selectedUser._id
+            }`,
+            {
+              withCredentials: true,
+              headers: {
+                Authorization: "Bearer " + document.cookie.substring(6),
+                "Content-Type": "application/json",
+              },
+            }
+          );
         }
       } else {
         setUnreadCounts((prev) => ({
@@ -121,14 +140,30 @@ const Inbox = () => {
       socket.emit("join_chat", { otherUserId: selectedUser._id });
       try {
         const res = await axios.get(
-          `http://localhost:3000/api/messages/${currentUser.user._id}/${selectedUser._id}`,
-          { withCredentials: true }
+          `${import.meta.env.VITE_API}/api/messages/${currentUser.user._id}/${
+            selectedUser._id
+          }`,
+          {
+            withCredentials: true,
+            headers: {
+              Authorization: "Bearer " + document.cookie.substring(6),
+              "Content-Type": "application/json",
+            },
+          }
         );
         setMessages(res.data.messages);
+
         await axios.put(
-          `http://localhost:3000/api/messages/mark-read/${selectedUser._id}`,
-          {},
-          { withCredentials: true }
+          `${import.meta.env.VITE_API}/api/messages/mark-read/${
+            selectedUser._ids
+          }`,
+          {
+            withCredentials: true,
+            headers: {
+              Authorization: "Bearer " + document.cookie.substring(6),
+              "Content-Type": "application/json",
+            },
+          }
         );
         setUnreadCounts((prev) => ({ ...prev, [selectedUser._id]: 0 }));
       } catch (err) {
@@ -220,9 +255,12 @@ const Inbox = () => {
                 selectedUser?._id === user._id ? "bg-blue-50" : ""
               }`}
             >
-              <Link to={`/user/${user._id}`} className="flex items-center gap-2">
+              <Link
+                to={`/user/${user._id}`}
+                className="flex items-center gap-2"
+              >
                 <img
-                  src={`http://localhost:3000/images/uploads/${user.profilepic}`}
+                  src={`${import.meta.env.VITE_API}/images/uploads/${user.profilepic}`}
                   alt={user.name}
                   className="w-9 h-9 rounded-full object-cover ring-2 ring-violet-300 ring-offset-2"
                 />
@@ -266,7 +304,7 @@ const Inbox = () => {
                 className="flex items-center gap-2"
               >
                 <img
-                  src={`http://localhost:3000/images/uploads/${selectedUser.profilepic}`}
+                  src={`${import.meta.env.VITE_API}/images/uploads/${selectedUser.profilepic}`}
                   alt={selectedUser.name}
                   className="w-9 h-9 rounded-full object-cover ring-2 ring-violet-300 ring-offset-2"
                 />

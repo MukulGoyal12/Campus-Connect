@@ -12,9 +12,14 @@ function HomeRequestCard({ requests }) {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const res = await axios.get("http://localhost:3000/api/user", {
-        withCredentials: true,
-      });
+      const res= await axios
+      .get(`${import.meta.env.VITE_API}/api/user`, {
+        withCredentials:true,
+        headers: {
+          Authorization: "Bearer " + document.cookie.substring(6),
+          "Content-Type": "application/json",
+        },
+      })
       setCurrentUserId(res.data.user._id);
     };
     fetchUser();
@@ -22,11 +27,15 @@ function HomeRequestCard({ requests }) {
 
   const handleAccept = async (request) => {
     try {
-      await axios.post(
-        `http://localhost:3000/api/acceptRequest/${request._id}`,
-        {},
-        { withCredentials: true }
-      );
+      await axios
+      .post(`${import.meta.env.VITE_API}/api/acceptRequest/${request._id}`, {}, {
+        withCredentials:true,
+        headers: {
+          Authorization: "Bearer " + document.cookie.substring(6),
+          "Content-Type": "application/json",
+        },
+
+      })
 
       socket.emit("send_message", {
         senderId: currentUserId,
@@ -86,7 +95,7 @@ function HomeRequestCard({ requests }) {
                     className="flex items-center gap-2"
                   >
                     <img
-                      src={`http://localhost:3000/images/uploads/${request.requester.profilepic}`}
+                      src={`${import.meta.env.VITE_API}/images/uploads/${request.requester.profilepic}`}
                       alt="Profile"
                       className="w-9 h-9 rounded-full object-cover border"
                     />
