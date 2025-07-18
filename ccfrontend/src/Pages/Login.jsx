@@ -20,7 +20,7 @@ const Login = () => {
       alert("Please fill in all fields.");
       return;
     }
-    axios
+axios
       .post(`${import.meta.env.VITE_API}/api/login`, loginData, {
         withCredentials: true,
         headers: {
@@ -29,6 +29,7 @@ const Login = () => {
         },
       })
       .then((res) => {
+        localStorage.setItem("token", res.data.token);
         navigate("/home");
       })
       .catch((err) => {

@@ -42,13 +42,11 @@ function App() {
 
   return (
     <>
-      {authPaths.includes(location.pathname)
-        ? <HeaderSimple />
-        : isAuthenticated && <Header />}
+    <Header />
 
-      {!isAuthenticated && !authPaths.includes(location.pathname)
-        ? <Navigate to="/auth/login" />
-        : <div className="pb-[70px]"><Outlet /></div>}
+<div className="pb-[70px]">
+      <Outlet />
+    </div>
 
       {showFooter && <MobileFooter unreadCount={unreadCount} />}
     </>

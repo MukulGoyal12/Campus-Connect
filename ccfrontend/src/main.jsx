@@ -25,9 +25,7 @@ const appRoutes = createBrowserRouter([
       {
         path: "home",
         element: (
-          <ProtectedRoute>
             <Home />
-          </ProtectedRoute>
         ),
       },
       {

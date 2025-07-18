@@ -72,8 +72,7 @@ export async function login(req, res) {
         const token =  generateToken(user);
         console.log("inside login route",token);
         
-        res.cookie("token", token);
-        return res.status(200).send("Login successful");
+        return res.status(200).json({message:"Login Succesful",token:token});
       } else {
         return res.status(401).send("Invalid credentials");
       }
