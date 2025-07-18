@@ -48,7 +48,7 @@ function App() {
 
       {!isAuthenticated && !authPaths.includes(location.pathname)
         ? <Navigate to="/auth/login" />
-        : <div className="pb-[70px]"><Outlet /></div>}
+        : <div className="overflow-hidden"><Outlet /></div>}
 
       {showFooter && <MobileFooter unreadCount={unreadCount} />}
     </>

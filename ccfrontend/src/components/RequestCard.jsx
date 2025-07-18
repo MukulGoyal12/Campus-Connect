@@ -26,8 +26,10 @@ const RequestCard = ({ user, fetchUser, showDelete = true }) => {
 
   const handleAccept = async (request) => {
     try {
+      console.log(localStorage.getItem("token"));
+      
       await axios.post(
-        `${import.meta.env.VITE_API}/api/acceptRequest/${request._id}`,
+        `${import.meta.env.VITE_API}/api/acceptRequest/${request._id}`,{},
         {
           withCredentials: true,
           headers: {

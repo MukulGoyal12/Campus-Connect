@@ -22,7 +22,7 @@ const ProfileCard = ({ user, fetchUser, showChangePhoto }) => {
       .post(`${import.meta.env.VITE_API}/api/upload`, formData,{
         withCredentials:true,
         headers: {
-          Authorization: "Bearer " + document.cookie.substring(6),
+          Authorization: "Bearer " + localStorage.getItem("token"),
           "Content-Type": "multipart/form-data",
 
         },

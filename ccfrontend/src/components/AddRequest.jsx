@@ -28,7 +28,7 @@ const AddRequest = ({ onClose, onRequestAdded }) => {
       .post(`${import.meta.env.VITE_API}/api/request`, RequestData, {
         withCredentials:true,
         headers: {
-          Authorization: "Bearer " + document.cookie.substring(6),
+          Authorization: "Bearer " + localStorage.getItem("token"),
           "Content-Type": "application/json",
         },
 

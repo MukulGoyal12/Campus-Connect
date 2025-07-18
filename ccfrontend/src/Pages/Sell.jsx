@@ -48,7 +48,7 @@ console.log(formData);
       await axios.post(`${import.meta.env.VITE_API}/api/listings `, data, {
         withCredentials: true,
         headers: {
-          Authorization: "Bearer " + document.cookie.substring(6),
+          Authorization: "Bearer " + localStorage.getItem("token"),
           "Content-Type": "application/json",
         },
       });

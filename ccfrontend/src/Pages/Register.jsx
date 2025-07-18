@@ -25,7 +25,7 @@ const Register = () => {
       .post(`${import.meta.env.VITE_API}/api/register`, {
         withCredentials: true,
         headers: {
-          Authorization: "Bearer " + document.cookie.substring(6),
+          Authorization: "Bearer " + localStorage.getItem("token"),
           "Content-Type": "application/json",
         },
       })

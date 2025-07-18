@@ -14,7 +14,7 @@ function MarketCard({ listings }) {
       .get(`${import.meta.env.VITE_API}/api/user`, {
         withCredentials:true,
         headers: {
-          Authorization: "Bearer " + document.cookie.substring(6),
+          Authorization: "Bearer " + localStorage.getItem("token"),
           "Content-Type": "application/json",
         },
       })
@@ -29,7 +29,7 @@ function MarketCard({ listings }) {
       .post(`${import.meta.env.VITE_API}/api/sold/${item._id}`,{}, {
         withCredentials:true,
         headers: {
-          Authorization: "Bearer " + document.cookie.substring(6),
+          Authorization: "Bearer " + localStorage.getItem("token"),
           "Content-Type": "application/json",
         },
       })

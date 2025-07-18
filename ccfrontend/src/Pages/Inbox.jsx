@@ -155,8 +155,8 @@ const Inbox = () => {
 
         await axios.put(
           `${import.meta.env.VITE_API}/api/messages/mark-read/${
-            selectedUser._ids
-          }`,
+            selectedUser._id
+          }`,{},
           {
             withCredentials: true,
             headers: {
