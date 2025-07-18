@@ -20,7 +20,7 @@ const ProfileCard = ({ user, fetchUser, showChangePhoto }) => {
         return;
       }
       const response=await axios
-      .post(`http://localhost:3000/api/upload`, formData,{
+      .post(`${import.meta.env.VITE_API}/api/upload`, formData,{
         withCredentials:true,
         headers: {
           Authorization: "Bearer " + localStorage.getItem("token"),
