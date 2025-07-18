@@ -95,7 +95,7 @@ function MarketCard({ listings }) {
               >
                 <div className="relative bg-gray-100 h-48 sm:h-56 md:h-64 flex items-center justify-center rounded-t-2xl overflow-hidden">
                   <img
-                    src={`${import.meta.env.VITE_API}/images/uploads/${item.image}`}
+                    src={item.image}
                     alt={item.title}
                     className="max-h-full max-w-full object-contain"
                   />
