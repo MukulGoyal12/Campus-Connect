@@ -5,9 +5,9 @@ import upload from "../utils/multerconfig.js";
 export function userRoutes(app){
     app.post("/api/register", register );
     app.post("/api/login", login );
-    app.get("/api/logout" ,logout );
-    app.get("/api/user" , fetchUser);
-    app.post('/api/upload',upload.single("image"), uploadImage);
-    app.get('/api/user/:id', getUserById);
-    app.get('/api/users', getAllUsers);
+    app.get("/api/logout", isLoggedIn ,logout );
+    app.get("/api/user", isLoggedIn , fetchUser);
+    app.post('/api/upload',upload.single("image"),isLoggedIn, uploadImage);
+    app.get('/api/user/:id',isLoggedIn, getUserById);
+    app.get('/api/users',isLoggedIn, getAllUsers);
 }

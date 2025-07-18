@@ -2,10 +2,10 @@ import { postRequest, deleteRequest, fetchRequest, AcceptRequest, finalAcceptReq
 import isLoggedIn from "../middleware/isLoggedIn.js";
 
 export function requestRoutes(app) {
-  app.post("/api/request", postRequest);
-  app.delete("/api/request/:id", deleteRequest);
-  app.get("/api/fetchRequest" , fetchRequest);
-  app.post("/api/acceptRequest/:requestid", AcceptRequest);
-  app.put("/api/request/accept/:requestid", finalAcceptRequest);
-  app.put("/api/request/reject/:requestid", rejectRequest);
+  app.post("/api/request", isLoggedIn, postRequest);
+  app.delete("/api/request/:id", isLoggedIn, deleteRequest);
+  app.get("/api/fetchRequest", isLoggedIn , fetchRequest);
+  app.post("/api/acceptRequest/:requestid", isLoggedIn, AcceptRequest);
+  app.put("/api/request/accept/:requestid", isLoggedIn, finalAcceptRequest);
+  app.put("/api/request/reject/:requestid", isLoggedIn, rejectRequest);
 }

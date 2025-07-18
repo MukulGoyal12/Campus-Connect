@@ -2,7 +2,7 @@ import { Navigate } from "react-router-dom";
 import { getCookie } from "../../utils/getCookie";
 
 const ProtectedRoute = ({ children }) => {
-  const token = getCookie("token");
+  const token = localStorage.getItem("token")
 
   if (!token) {
     return <Navigate to="/auth/login" replace />;

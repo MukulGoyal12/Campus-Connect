@@ -93,6 +93,7 @@ export async function logout(req, res) {
 
 export async function fetchUser(req, res) {
   try {
+    console.log();
     
     const user = await userModel
       .findOne({ email: req.user.email })
