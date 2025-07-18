@@ -45,7 +45,10 @@ export async function register(req, res) {
     });
 
     const token = generateToken(user);
+
     res.cookie("token", token);
+    
+
 
     res.status(200).send("User registered successfully");
   } catch (err) {
@@ -65,9 +68,10 @@ export async function login(req, res) {
 
     bcrypt.compare(password, user.password, (err, result) => {
       if (err) return res.status(500).send("Error comparing passwords");
-
       if (result) {
         const token =  generateToken(user);
+        console.log(token);
+        
         res.cookie("token", token);
         return res.status(200).send("Login successful");
       } else {
