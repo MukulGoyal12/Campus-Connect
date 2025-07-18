@@ -117,14 +117,12 @@ export async function uploadImage(req, res) {
       return res.status(400).json({ message: "No file uploaded" });
     }
     
-    const uploadResult = await cloudinary.uploader.upload(req.file.path)
-console.log(uploadResult);
 
     if (user.profilepic && user.profilepic !== "default.jpeg") {
       deleteFile(user.profilepic);
     }
 
-    user.profilepic = uploadResult.secure_url;
+    user.profilepic=req.file.path;
     await user.save();
 
     res.status(200).json({
