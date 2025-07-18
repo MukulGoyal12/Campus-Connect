@@ -70,7 +70,7 @@ export async function login(req, res) {
       if (err) return res.status(500).send("Error comparing passwords");
       if (result) {
         const token =  generateToken(user);
-        console.log(token);
+        console.log("inside login route",token);
         
         res.cookie("token", token);
         return res.status(200).send("Login successful");
