@@ -3,6 +3,7 @@ import userModel from "../models/user-model.js";
 import { generateToken } from "../utils/generateTokens.js";
 import { hashedPassword } from "../utils/hashPassword.js";
 import { deleteFile } from "../utils/deleteFile.js";
+import cloudinary from "../utils/cloudinary.js";
 
 function capitalizeFirstAndLastWord(str) {
   if (!str) return "";
@@ -128,7 +129,14 @@ export async function uploadImage(req, res) {
       deleteFile(user.profilepic);
     }
 
-    user.profilepic=req.file.path;
+    const response = await cloudinary.uploader.upload(req.file.path);
+    if (!response) {
+      return res.status(500).json({ message: "Failed to upload image" });
+    }
+    console.log(response);
+    
+
+    user.profilepic=response.secure_url;
     await user.save();
 
     res.status(200).json({
