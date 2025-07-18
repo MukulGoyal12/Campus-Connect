@@ -124,11 +124,7 @@ function MarketCard({ listings }) {
                   <div className="flex items-center gap-4 mt-auto">
                     <Link to={`/user/${item.seller._id}`}>
                       <img
-                        src={
-                          item.seller.profilepic
-                            ? `${import.meta.env.VITE_API}/images/uploads/${item.seller.profilepic}`
-                            : `${import.meta.env.VITE_API}/images/default.png`
-                        }
+                        src={item.seller.profilepic}
                         alt={item.seller.name}
                         className="w-11 h-11 sm:w-12 sm:h-12 rounded-full object-cover ring-2 ring-purple-500 hover:scale-105 transition duration-300"
                       />
