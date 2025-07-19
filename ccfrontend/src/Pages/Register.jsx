@@ -20,9 +20,8 @@ const Register = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     axios
-      .post(`${import.meta.env.VITE_API}/api/register`, {
+      .post(`${import.meta.env.VITE_API}/api/register`,formData ,{
         withCredentials: true,
         headers: {
           Authorization: "Bearer " + localStorage.getItem("token"),
@@ -31,7 +30,7 @@ const Register = () => {
       })
 
       .then((res) => {
-        // console.log(res.data);
+        console.log(res.data);
         navigate("/home");
       })
       .catch((err) => {

@@ -51,7 +51,7 @@ export async function register(req, res) {
     
 
 
-    res.status(200).send("User registered successfully");
+    res.status(200).json({"message":"User registered successfully"});
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
