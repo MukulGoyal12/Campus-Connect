@@ -31,7 +31,7 @@ const Register = () => {
 
       .then((res) => {
         console.log(res.data);
-        navigate("/login");
+        navigate("/auth/login");
       })
       .catch((err) => {
         console.error(err);
