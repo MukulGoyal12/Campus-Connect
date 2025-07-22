@@ -2,34 +2,50 @@ import { FaTrash } from "react-icons/fa";
 import axios from "axios";
 import { useSocket } from "../provider/SocketProvider";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { confirmAlert } from "react-confirm-alert";
+import "react-confirm-alert/src/react-confirm-alert.css";
 
 const RequestCard = ({ user, fetchUser, showDelete = true }) => {
   const socket = useSocket();
   const navigate = useNavigate();
 
   const handleDelete = async (id) => {
-    try {
-      if (window.confirm("Are you sure you want to delete this request?")) {
-        await axios.delete(`${import.meta.env.VITE_API}/api/request/${id}`, {
-          withCredentials: true,
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("token"),
-            "Content-Type": "application/json",
+    confirmAlert({
+      title: "Confirm Deletion",
+      message: "Are you sure you want to delete this request?",
+      buttons: [
+        {
+          label: "Yes",
+          onClick: async () => {
+            try {
+              await axios.delete(`${import.meta.env.VITE_API}/api/request/${id}`, {
+                withCredentials: true,
+                headers: {
+                  Authorization: "Bearer " + localStorage.getItem("token"),
+                  "Content-Type": "application/json",
+                },
+              });
+              toast.error("Request deleted successfully!");
+              fetchUser();
+            } catch (err) {
+              console.error("Delete error:", err);
+              toast.error("Something went wrong while deleting.");
+            }
           },
-        });
-        fetchUser();
-      }
-    } catch (err) {
-      console.error("Delete error:", err);
-    }
+        },
+        {
+          label: "No",
+        },
+      ],
+    });
   };
 
   const handleAccept = async (request) => {
     try {
-      console.log(localStorage.getItem("token"));
-      
       await axios.post(
-        `${import.meta.env.VITE_API}/api/acceptRequest/${request._id}`,{},
+        `${import.meta.env.VITE_API}/api/acceptRequest/${request._id}`,
+        {},
         {
           withCredentials: true,
           headers: {
@@ -54,7 +70,7 @@ const RequestCard = ({ user, fetchUser, showDelete = true }) => {
         },
       });
     } catch (err) {
-      alert(
+      toast.error(
         err.response
           ? err.response.data.message
           : "An error occurred while accepting the request."
@@ -96,9 +112,7 @@ const RequestCard = ({ user, fetchUser, showDelete = true }) => {
                 </h2>
 
                 <div className="text-sm text-gray-600 space-y-1">
-                  <p className="font-medium text-gray-700">
-                    💰 {req.offer || "₹0"}
-                  </p>
+                  <p className="font-medium text-gray-700">💰 {req.offer || "₹0"}</p>
                   <p className={getStatusColor(getStatusText(req.isAccepted))}>
                     📌 {getStatusText(req.isAccepted)}
                   </p>
@@ -133,7 +147,12 @@ const RequestCard = ({ user, fetchUser, showDelete = true }) => {
                 {showDelete && (
                   <button
                     onClick={() => handleDelete(req._id)}
-                    className="text-red-500 hover:text-red-600 hover:scale-110 transition"
+                    disabled={req.isAccepted === true}
+                    className={`${
+                      req.isAccepted === true
+                        ? "text-gray-400 cursor-not-allowed"
+                        : "text-red-500 hover:text-red-600 hover:scale-110"
+                    } transition`}
                   >
                     <FaTrash className="text-lg" />
                   </button>

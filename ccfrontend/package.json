@@ -14,10 +14,13 @@
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.0",
     "navigate": "^0.3.6",
+    "prop-types": "^15.8.1",
     "react": "^19.1.0",
+    "react-confirm-alert": "^3.0.6",
     "react-dom": "^19.1.0",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.6.2",
+    "react-toastify": "^11.0.5",
     "socket.io-client": "^4.8.1"
   },
   "devDependencies": {

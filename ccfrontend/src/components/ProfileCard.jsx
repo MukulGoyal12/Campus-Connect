@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { FiCamera, FiX, FiMessageSquare } from "react-icons/fi";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const ProfileCard = ({ user, fetchUser, showChangePhoto }) => {
   const fileInputRef = useRef(null);
@@ -16,7 +17,7 @@ const ProfileCard = ({ user, fetchUser, showChangePhoto }) => {
 
     try {
       if (!selectedFile) {
-        alert("Please select an image file.");
+        toast.warn("Please select an image file.");
         return;
       }
       const response=await axios

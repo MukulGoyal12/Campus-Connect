@@ -1,11 +1,14 @@
 import axios from "axios";
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 const AddRequest = ({ onClose, onRequestAdded }) => {
   const [RequestData, setRequestData] = useState({
     task: "",
     offer: "",
   });
+
+  const [loading, setLoading] = useState(false); // ✅ loading state added
 
   const toTitleCase = (str) => {
     return str
@@ -22,24 +25,26 @@ const AddRequest = ({ onClose, onRequestAdded }) => {
   };
 
   const handleSubmit = (e) => {
-
     e.preventDefault();
+    setLoading(true); // ✅ start loading
     axios
       .post(`${import.meta.env.VITE_API}/api/request`, RequestData, {
-        withCredentials:true,
+        withCredentials: true,
         headers: {
           Authorization: "Bearer " + localStorage.getItem("token"),
           "Content-Type": "application/json",
         },
-
       })
       .then((res) => {
-        console.log("Request added:", res.data);
+        toast.success("Request posted successfully!");
         onRequestAdded();
         onClose();
       })
       .catch((err) => {
-        console.error("Request error:", err);
+        toast.error("Something went wrong");
+      })
+      .finally(() => {
+        setLoading(false); // ✅ stop loading
       });
   };
 
@@ -80,9 +85,14 @@ const AddRequest = ({ onClose, onRequestAdded }) => {
 
           <button
             type="submit"
-            className="w-full py-2 sm:py-3 bg-gradient-to-r from-fuchsia-600 to-pink-500 text-white font-bold rounded-lg hover:from-fuchsia-700 hover:to-pink-600 transition duration-300 text-sm sm:text-base"
+            disabled={loading}
+            className={`w-full py-2 sm:py-3 font-bold rounded-lg transition duration-300 text-sm sm:text-base
+              ${loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-gradient-to-r from-fuchsia-600 to-pink-500 text-white hover:from-fuchsia-700 hover:to-pink-600"}
+            `}
           >
-            📤 Post Request
+            {loading ? "Posting..." : "📤 Post Request"}
           </button>
         </form>
       </div>

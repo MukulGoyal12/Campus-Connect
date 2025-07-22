@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useState } from "react";
+import { toast } from "react-toastify";
 
 const Sell = () => {
   const [formData, setFormData] = useState({
@@ -9,6 +10,8 @@ const Sell = () => {
     category: "",
     image: null,
   });
+
+  const [isSubmitting, setIsSubmitting] = useState(false); // ✅ added
 
   const toTitleCase = (str) =>
     str
@@ -35,6 +38,7 @@ const Sell = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true); // ✅ start loader
 
     const data = new FormData();
     data.append("title", formData.title);
@@ -42,10 +46,9 @@ const Sell = () => {
     data.append("basePrice", formData.basePrice);
     data.append("category", formData.category);
     data.append("image", formData.image);
-console.log(formData);
 
     try {
-      await axios.post(`${import.meta.env.VITE_API}/api/listings `, data, {
+      await axios.post(`${import.meta.env.VITE_API}/api/listings`, data, {
         withCredentials: true,
         headers: {
           Authorization: "Bearer " + localStorage.getItem("token"),
@@ -59,10 +62,11 @@ console.log(formData);
         category: "",
         image: null,
       });
-      alert("Item listed successfully!");
+      toast.success("Item listed successfully!");
     } catch (err) {
-      console.error("Upload failed:", err);
-      alert("Something went wrong while uploading.");
+      toast.error("Something went wrong while uploading.");
+    } finally {
+      setIsSubmitting(false); // ✅ reset loader
     }
   };
 
@@ -170,9 +174,14 @@ console.log(formData);
           <div>
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold py-3 rounded-lg shadow-md hover:from-blue-600 hover:to-indigo-700 transition-all duration-300"
+              disabled={isSubmitting}
+              className={`w-full font-semibold py-3 rounded-lg shadow-md transition-all duration-300 ${
+                isSubmitting
+                  ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                  : "bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700"
+              }`}
             >
-              🚀 List Item for Sale
+              {isSubmitting ? "⏳ Listing..." : "🚀 List Item for Sale"}
             </button>
           </div>
         </form>

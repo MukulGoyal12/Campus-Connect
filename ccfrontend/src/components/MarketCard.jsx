@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSocket } from "../provider/SocketProvider";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 function MarketCard({ listings }) {
   const [currentUserId, setCurrentUserId] = useState("");
@@ -35,18 +36,18 @@ function MarketCard({ listings }) {
       })
     } catch (err) {
       if (err.response && err.response.data) {
-        alert(
+        toast.error(
           err.response.data.message ||
             "An error occurred while processing the request."
         );
       } else {
-        alert("Something went wrong. Please try again later.");
+        toast.error("Something went wrong. Please try again later.");
       }
       return;
     }
 
     if (!currentUserId) {
-      alert("User not loaded yet!");
+      toast.info("User not loaded yet!");
       return;
     }
 

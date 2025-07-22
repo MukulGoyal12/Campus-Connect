@@ -4,10 +4,12 @@ import HeaderSimple from "./components/HeaderSimple";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import MobileFooter from "./components/MobileFooter ";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const location = useLocation();
-  const isAuthenticated = !!localStorage.getItem("token") ;
+  const isAuthenticated = !!localStorage.getItem("token");
   const authPaths = ["/auth/login", "/auth/register"];
   const showHeader = !authPaths.includes(location.pathname) && isAuthenticated;
   const showFooter = showHeader;
@@ -17,16 +19,16 @@ function App() {
   useEffect(() => {
     const fetchUnread = async () => {
       try {
-        
-        const res= await axios
-        .get(`${import.meta.env.VITE_API}/api/messages/unread-counts`, {
-          withCredentials:true,
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("token"),
-            "Content-Type": "application/json",
-          },
-  
-        })
+        const res = await axios.get(
+          `${import.meta.env.VITE_API}/api/messages/unread-counts`,
+          {
+            withCredentials: true,
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("token"),
+              "Content-Type": "application/json",
+            },
+          }
+        );
         const total = res.data.unreadCounts.reduce(
           (sum, item) => sum + item.count,
           0
@@ -51,6 +53,18 @@ function App() {
         : <div className="overflow-hidden"><Outlet /></div>}
 
       {showFooter && <MobileFooter unreadCount={unreadCount} />}
+
+      {/* ✅ Global ToastContainer at bottom */}
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </>
   );
 }

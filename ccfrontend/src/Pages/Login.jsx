@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import {  toast } from "react-toastify";
 
 const Login = () => {
   const [loginData, setLoginData] = useState({
@@ -14,31 +15,32 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-  const handleSubmit =  (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (!loginData.email || !loginData.password) {
-      alert("Please fill in all fields.");
+      toast.warn("Please fill in all fields.");
       return;
     }
-axios
+    axios
       .post(`${import.meta.env.VITE_API}/api/login`, loginData)
       .then((res) => {
         localStorage.setItem("token", res.data.token);
+        toast.success("Login Successfully!"); ;
         navigate("/home");
       })
       .catch((err) => {
         if (err.response && err.response.data) {
-          alert(err.response.data.message || "Invalid credentials");
+          toast.error(err.response.data.message ||"Invalid credentials");
         } else {
-          alert("Something went wrong. Try again.");
+          toast.info("Something went wrong. Try again.");
         }
-        console.error("Login error:", err);
       });
   };
 
   return (
     <div className="min-h-screen flex">
-      {/* Left side with campus image */}
+
+
       <div className="hidden md:flex w-1/2 bg-blue-900">
         <div
           className="w-full h-full bg-cover bg-center"

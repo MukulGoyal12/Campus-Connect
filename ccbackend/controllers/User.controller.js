@@ -48,10 +48,8 @@ export async function register(req, res) {
     const token = generateToken(user);
 
     res.cookie("token", token);
-    
 
-
-    res.status(200).json({"message":"User registered successfully"});
+    res.status(200).json({"message":"User registered successfully" , "user":user});
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

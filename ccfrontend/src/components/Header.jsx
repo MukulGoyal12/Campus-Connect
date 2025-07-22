@@ -10,6 +10,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useSocket } from "../provider/SocketProvider";
 import Logo from "./Logo";
+import { toast } from "react-toastify";
 
 const Header = () => {
   const [user, setUser] = useState({});
@@ -64,12 +65,12 @@ const Header = () => {
         headers: {
           Authorization: "Bearer " + localStorage.getItem("token"),
           "Content-Type": "application/json",
-        },
-
+        }
       })
+      toast.error("Logout successful!")
       navigate("/auth/login", { replace: true });
     } catch (err) {
-      console.error("Logout error:", err);
+      toast.error("Logout error:", err);
     }
   };
 
