@@ -12,8 +12,8 @@ const Logo = () => {
     const x = (offsetX / offsetWidth) - 0.5;
     const y = (offsetY / offsetHeight) - 0.5;
 
-    const rotateX = y * -20; // Top-bottom movement
-    const rotateY = x * 20;  // Left-right movement
+    const rotateX = y * -20;  
+    const rotateY = x * 20;  
 
     setStyle({
       transform: `perspective(500px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,

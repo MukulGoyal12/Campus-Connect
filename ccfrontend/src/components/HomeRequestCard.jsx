@@ -118,7 +118,7 @@ function HomeRequestCard({ requests }) {
                         : "bg-yellow-50 text-yellow-700 border border-yellow-100"
                     }`}
                   >
-                    {request.isAccepted ? "Accepted" : "Pending"}
+                    {request.isAccepted ? "Completed" : "Pending"}
                   </span>
                 </div>
 

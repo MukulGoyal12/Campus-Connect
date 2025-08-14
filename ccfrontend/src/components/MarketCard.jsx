@@ -87,7 +87,6 @@ function MarketCard({ listings }) {
               return a.sold ? 1 : -1;
             })
             .map((item) => {
-              console.log(item);
               
               return (
               <div

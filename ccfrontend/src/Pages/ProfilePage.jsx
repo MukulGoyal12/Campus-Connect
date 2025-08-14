@@ -11,13 +11,12 @@ export default function ProfilePage({
   showChangePhoto,
 }) {
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-8">
+    <div className="max-w-5xl mx-auto p-4 sm:p-6 space-y-6 sm:space-y-8 pb-20 md:pb-10">
       <ProfileCard
         user={user}
         fetchUser={fetchUser}
         showChangePhoto={showChangePhoto}
       />
-
       {showAddRequest && (
         <div className="flex justify-center">
           <button
@@ -28,7 +27,6 @@ export default function ProfilePage({
           </button>
         </div>
       )}
-
       <div>
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Requests</h2>
         <RequestCard
@@ -37,7 +35,6 @@ export default function ProfilePage({
           showDelete={showDelete}
         />
       </div>
-
       {/* <div>
         <h2 className="text-2xl font-bold text-gray-800 mb-4">Fulfilled Requests</h2>
         <FulfilledRequests user={user} />

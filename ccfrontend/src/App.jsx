@@ -54,7 +54,6 @@ function App() {
 
       {showFooter && <MobileFooter unreadCount={unreadCount} />}
 
-      {/* ✅ Global ToastContainer at bottom */}
       <ToastContainer
         position="top-right"
         autoClose={2000}

@@ -71,12 +71,11 @@ const Sell = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-5 py-6 sm:py-10">
-      <div className="bg-white shadow-lg rounded-2xl p-5 sm:p-8 border border-gray-200">
-        <h2 className="text-md sm:text-3xl font-bold text-gray-800 mb-6 text-center">
+    <div className="max-w-2xl mx-auto px-4 sm:px-5 py-6 sm:py-10 pb-20 md:pb-10">
+      <div className="bg-white shadow-lg rounded-xl p-4 sm:p-8 border border-gray-200">
+        <h2 className="text-lg sm:text-3xl font-bold text-gray-800 mb-4 sm:mb-6 text-center">
           📤 List an Item for Sale
         </h2>
-
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -89,8 +88,7 @@ const Sell = () => {
               onChange={handleChange}
               required
               placeholder="Enter a catchy title"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"            />
           </div>
 
           <div>
@@ -104,8 +102,7 @@ const Sell = () => {
               rows="3"
               required
               placeholder="Describe your item clearly..."
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"            />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -120,8 +117,7 @@ const Sell = () => {
                 onChange={handleChange}
                 required
                 min="0"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"              />
             </div>
 
             <div>
@@ -133,8 +129,7 @@ const Sell = () => {
                 value={formData.category}
                 onChange={handleChange}
                 required
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm sm:text-base text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"              >
                 <option value="">Select Category</option>
                 <option value="Books">Books</option>
                 <option value="Notes & Study Material">
@@ -175,7 +170,7 @@ const Sell = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`w-full font-semibold py-3 rounded-lg shadow-md transition-all duration-300 ${
+              className={`w-full font-semibold py-2 sm:py-3 text-sm sm:text-base rounded-lg shadow-md transition-all duration-300 ${
                 isSubmitting
                   ? "bg-gray-300 text-gray-600 cursor-not-allowed"
                   : "bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700"

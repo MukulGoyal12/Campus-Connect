@@ -89,17 +89,20 @@ const Inbox = () => {
     if (!socket) return;
 
     const handleReceive = async (message) => {
+      // Ensure message.sender exists
+      message.sender = message.sender || message.senderId;
+    
       if (
         selectedUser &&
         (message.sender === selectedUser._id ||
           message.receiver === selectedUser._id)
       ) {
         setMessages((prev) => [...prev, message]);
+    
         if (message.sender === selectedUser._id) {
           await axios.put(
-            `${import.meta.env.VITE_API}/api/messages/mark-read/${
-              selectedUser._id
-            }`,
+            `${import.meta.env.VITE_API}/api/messages/mark-read/${selectedUser._id}`,
+            {},
             {
               withCredentials: true,
               headers: {
@@ -116,6 +119,7 @@ const Inbox = () => {
         }));
       }
     };
+    
 
     socket.on("receive_message", handleReceive);
     socket.on("unread_count_update", (data) => {
@@ -156,7 +160,8 @@ const Inbox = () => {
         await axios.put(
           `${import.meta.env.VITE_API}/api/messages/mark-read/${
             selectedUser._id
-          }`,{},
+          }`,
+          {},
           {
             withCredentials: true,
             headers: {
@@ -189,13 +194,14 @@ const Inbox = () => {
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !selectedUser || !currentUser) return;
-
+  
     const msg = {
       senderId: currentUser.user._id,
+      sender: currentUser.user._id,  // <-- add this
       receiverId: selectedUser._id,
       message: newMessage,
     };
-
+  
     try {
       socket.emit("send_message", msg);
       setMessages((prev) => [
@@ -211,6 +217,7 @@ const Inbox = () => {
       console.error("Error sending message:", err);
     }
   };
+  
 
   const formatTime = (timestamp) =>
     new Date(timestamp).toLocaleTimeString([], {
@@ -219,7 +226,7 @@ const Inbox = () => {
     });
 
   return (
-    <div className="h-screen flex flex-col sm:flex-row">
+    <div className="h-[calc(100vh-64px)] flex flex-col sm:flex-row sm:overflow-hidden overflow-auto">
       {/* Sidebar Users */}
       <div
         className={`sm:w-1/3 bg-white border-r overflow-y-auto ${
@@ -292,12 +299,12 @@ const Inbox = () => {
         {selectedUser ? (
           <>
             {/* Chat Header */}
-            <div className="bg-white p-4 border-b flex items-center sticky top-0 z-20">
+            <div className="bg-white p-4 border-b flex items-center sticky top-0 z-30">
               <button
                 onClick={() => setSelectedUser(null)}
                 className="sm:hidden text-lg mr-3"
               >
-                👈🏻
+                🔙
               </button>
               <Link
                 to={`/user/${selectedUser._id}`}
@@ -316,7 +323,7 @@ const Inbox = () => {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 pb-[90px]">
+            <div className="flex-1 overflow-y-auto px-4 pt-4 pb-[80px]">
               {loading ? (
                 <div className="flex justify-center items-center h-full">
                   <div className="animate-spin h-8 w-8 border-b-2 border-blue-500 rounded-full" />
@@ -326,9 +333,7 @@ const Inbox = () => {
                   <div
                     key={message._id}
                     className={`flex ${
-                      message.sender === currentUser.user._id
-                        ? "justify-end"
-                        : "justify-start"
+                      message.sender === currentUser.user._id ? "justify-end" : "justify-start"
                     }`}
                   >
                     <div
@@ -345,12 +350,13 @@ const Inbox = () => {
                     </div>
                   </div>
                 ))
+                
               )}
               <div ref={messagesEndRef} />
             </div>
 
             {/* Input Fixed */}
-            <div className="fixed bottom-[56px] sm:bottom-0 left-0 right-0 bg-white p-3 border-t flex items-center space-x-2 z-30 sm:static">
+            <div className="bg-white p-3 mb-12  border-t flex items-center space-x-2 sticky bottom-0 z-30 sm:pb-0">
               <input
                 type="text"
                 value={newMessage}
