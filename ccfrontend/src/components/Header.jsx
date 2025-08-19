@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   FaHome,
   FaSignOutAlt,
@@ -17,6 +17,7 @@ const Header = () => {
   const [totalUnreadCount, setTotalUnreadCount] = useState(0);
   const navigate = useNavigate();
   const socket = useSocket();
+  const location = useLocation();
 
   const fetchUser = async () => {
     try {
@@ -129,26 +130,21 @@ const Header = () => {
               label="Notifications"
             />
             <NavIcon to="/profile" image={user.profilepic} label="Profile" />
-            <button
-              onClick={handleLogout}
-              className="flex flex-col items-center text-gray-700 hover:text-red-600 transition-transform duration-300 hover:scale-105 hover:rotate-3"
-            >
-              <FaSignOutAlt className="text-2xl" />
-              <span className="text-[11px]">Logout</span>
-            </button>
           </nav>
         </div>
       </header>
 
-      {/* ✅ Mobile-only logout button */}
-      <div className="md:hidden fixed bottom-16 right-4 z-50">
-        <button
-          onClick={handleLogout}
-          className="p-3 rounded-full bg-red-500 text-white shadow-lg hover:bg-red-600 transition"
-        >
-          <FaSignOutAlt className="text-2xl" />
-        </button>
-      </div>
+      {/* ✅ Mobile-only logout button (sirf Profile page pe) */}
+      {location.pathname === "/profile" && (
+        <div className="md:hidden fixed bottom-16 right-4 z-50">
+          <button
+            onClick={handleLogout}
+            className="p-3 rounded-full bg-red-500 text-white shadow-lg hover:bg-red-600 transition"
+          >
+            <FaSignOutAlt className="text-2xl" />
+          </button>
+        </div>
+      )}
     </>
   );
 };
