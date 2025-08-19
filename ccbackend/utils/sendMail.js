@@ -7,8 +7,8 @@ async function sendMail({ mailToken, email }) {
       port: 465,
       secure: true,
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: "mukulgoyal756@gmail.com",
+        pass: "zrhf plqt olne hxgx",
       },
     });
 
