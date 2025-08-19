@@ -25,7 +25,7 @@ const UserSchema = new mongoose.Schema(
     },
     Accomodation: {
       type: String,
-      enum: ["College Student", "External / Freelancer"],
+      enum: ["College Student", "External/Freelancer"],
       required: true,
     },
     profilepic: { type: String, default: "default.jpeg" },

@@ -26,7 +26,7 @@ function capitalizeFirstAndLastWord(str) {
 
 export async function register(req, res) {
   try {
-    const { name, email, password, rollno, year, hosteller } = req.body;
+    const { name, email, password, rollno, year, Accomodation } = req.body;
 
     const existingUser = await userModel.findOne({ email });
     if (existingUser) {
