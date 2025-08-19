@@ -92,7 +92,7 @@ const ProfileCard = ({ user, fetchUser, showChangePhoto }) => {
 
         <div className="space-y-2 text-sm text-gray-700 mt-2">
           <p>🎓 <span className="font-medium">Year:</span> {user?.user?.year}</p>
-          <p>🏠 <span className="font-medium">Hostel Type:</span> {user?.user?.hosteller ? "Hosteller" : "Day Scholar"}</p>
+          <p>🏠 <span className="font-medium">Accomodation:</span> {user?.user?.Accomodation ? "College Student" : "External/FreeLancer"}</p>
           <p>📅 <span className="font-medium">Joined On:</span> {user?.user?.createdAt ? format(new Date(user.user.createdAt), 'dd MMM yyyy') : "N/A"}</p>
         </div>
       </div>

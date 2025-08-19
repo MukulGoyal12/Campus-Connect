@@ -10,7 +10,7 @@ const Register = () => {
     password: "",
     rollno: "",
     year: "",
-    hosteller: "hostel",
+    Accomodation: "College Student",
   });
 
   const [loading, setLoading] = useState(false);
@@ -35,7 +35,7 @@ const Register = () => {
           },
         }
       );
-      console.log(res);
+      // console.log(res);  
       
       if (res.status === 200 && res.data.message.includes("User registered successfully")) {
         toast.info (
@@ -60,7 +60,6 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Image */}
       <div className="hidden md:flex w-1/2 bg-blue-900">
         <div
           className="w-full h-full bg-cover bg-center"
@@ -174,13 +173,13 @@ const Register = () => {
 
             {/* Hosteller / Day Scholar */}
             <div>
-              <label htmlFor="hosteller" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="Accomodation" className="block text-sm font-medium text-gray-700 mb-1">
                 Accommodation Type
               </label>
               <select
-                id="hosteller"
-                name="hosteller"
-                value={formData.hosteller}
+                id="Accomodation"
+                name="Accomodation"
+                value={formData.Accomodation}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
               >
