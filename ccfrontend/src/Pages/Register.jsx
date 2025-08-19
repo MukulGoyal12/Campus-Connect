@@ -35,17 +35,19 @@ const Register = () => {
           },
         }
       );
-      // console.log(res);  
-      
-      if (res.status === 200 && res.data.message.includes("User registered successfully")) {
-        toast.info (
-          "Please check your email to verify your account."
-        );
+      // console.log(res);
+
+      if (
+        res.status === 200 &&
+        res.data.message.includes("User registered successfully")
+      ) {
+        toast.info("Please check your email to verify your account.");
         navigate("/auth/login");
       } else {
-        toast.error(res.data.message || "Something went wrong. Please try again.");
+        toast.error(
+          res.data.message || "Something went wrong. Please try again."
+        );
       }
-
     } catch (err) {
       console.error(err);
       toast.error(
@@ -88,10 +90,12 @@ const Register = () => {
           </div>
 
           <div className="space-y-4">
-            {/* Name */}
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                Full Name
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Full Name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -107,8 +111,11 @@ const Register = () => {
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                University Email
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                University Email <span className="text-red-500">*</span>
               </label>
               <input
                 type="email"
@@ -124,8 +131,11 @@ const Register = () => {
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Password
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Password <span className="text-red-500">*</span>
               </label>
               <input
                 type="password"
@@ -142,7 +152,10 @@ const Register = () => {
             {/* Rollno & Year */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="rollno" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="rollno"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Roll Number
                 </label>
                 <input
@@ -156,7 +169,10 @@ const Register = () => {
                 />
               </div>
               <div>
-                <label htmlFor="year" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="year"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Year
                 </label>
                 <input
@@ -171,10 +187,9 @@ const Register = () => {
               </div>
             </div>
 
-            {/* Hosteller / Day Scholar */}
             <div>
               <label htmlFor="Accomodation" className="block text-sm font-medium text-gray-700 mb-1">
-                Accommodation Type
+                Accommodation Type <span className="text-red-500">*</span>
               </label>
               <select
                 id="Accomodation"
@@ -182,11 +197,11 @@ const Register = () => {
                 value={formData.Accomodation}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                required
               >
-                <option value="hostel">College Student</option>
-                <option value="external">External / Freelancer</option>
+                <option value="College Student">College Student</option>
+                <option value="External/Freelancer">External / Freelancer</option>
               </select>
-            </div>
           </div>
 
           {/* Submit */}
@@ -203,7 +218,10 @@ const Register = () => {
           {/* Login Link */}
           <p className="text-center text-sm text-gray-500">
             Already have an account?{" "}
-            <Link to="/auth/login" className="font-medium text-blue-600 hover:text-blue-500 hover:underline">
+            <Link
+              to="/auth/login"
+              className="font-medium text-blue-600 hover:text-blue-500 hover:underline"
+            >
               Sign in
             </Link>
           </p>
