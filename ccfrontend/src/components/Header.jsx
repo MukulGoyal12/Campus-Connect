@@ -19,12 +19,14 @@ const Header = () => {
   const socket = useSocket();
   const location = useLocation();
 
+  const token = localStorage.getItem("token"); 
+
   const fetchUser = async () => {
+    if (!token) return;
     try {
       const res = await axios.get(`${import.meta.env.VITE_API}/api/user`, {
-        withCredentials: true,
         headers: {
-          Authorization: "Bearer " + localStorage.getItem("token"),
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
@@ -35,63 +37,58 @@ const Header = () => {
   };
 
   const fetchUnreadCount = async () => {
+    if (!token) return;
     try {
-      const response = await axios.get(
+      const res = await axios.get(
         `${import.meta.env.VITE_API}/api/messages/unread-counts`,
         {
-          withCredentials: true,
           headers: {
-            Authorization: "Bearer " + localStorage.getItem("token"),
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         }
       );
-      const total = response.data.unreadCounts.reduce(
-        (sum, item) => sum + item.count,
-        0
-      );
+      const total = res.data.unreadCounts.reduce((sum, item) => sum + item.count, 0);
       setTotalUnreadCount(total);
-    } catch (error) {
-      console.error("Error fetching unread counts:", error);
+    } catch (err) {
+      console.error("Unread count error:", err);
     }
   };
 
   const handleLogout = async () => {
     try {
+      // optional: call backend logout for server cleanup
       await axios.get(`${import.meta.env.VITE_API}/api/logout`, {
-        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      localStorage.removeItem("token");
+    } catch (err) {
+      console.error("Logout API error:", err);
+    } finally {
+      localStorage.removeItem("token"); // remove token locally
       toast.success("Logout successful!");
       navigate("/auth/login", { replace: true });
-    } catch (err) {
-      console.error("Logout error:", err);
-      toast.error("Logout failed. Try again!");
     }
   };
-  
 
   useEffect(() => {
     fetchUser();
     fetchUnreadCount();
-  }, []);
+  }, [token]);
 
   useEffect(() => {
-    if (socket && user) {
+    if (socket && user._id) {
       socket.emit("join_room", user._id);
 
       socket.on("receive_message", (message) => {
-        if (message.sender !== user._id) {
-          setTotalUnreadCount((prev) => prev + 1);
-        }
+        if (message.sender !== user._id) setTotalUnreadCount((prev) => prev + 1);
       });
 
       socket.on("unread_count_update", fetchUnreadCount);
 
       socket.on("messages_read", (data) => {
-        if (data.count) {
-          setTotalUnreadCount((prev) => Math.max(0, prev - data.count));
-        }
+        if (data.count) setTotalUnreadCount((prev) => Math.max(0, prev - data.count));
       });
 
       return () => {
@@ -106,44 +103,27 @@ const Header = () => {
     <>
       <header className="sticky top-0 z-50 bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          {/* ✅ Logo remains */}
           <Logo />
 
-          {/* ✅ Desktop nav */}
           <nav className="hidden md:flex items-center gap-4 lg:gap-5">
             <NavIcon to="/home" icon={<FaHome />} label="Home" />
-            <NavIcon
-              to="/marketplace"
-              icon={<FaShoppingCart />}
-              label="Market"
-            />
-            <NavIcon
-              to="/inbox"
-              icon={<FaEnvelope />}
-              label="Inbox"
-              unreadCount={totalUnreadCount}
-            />
-            <NavIcon
-              to="/notifications"
-              icon={<FaBell />}
-              label="Notifications"
-            />
+            <NavIcon to="/marketplace" icon={<FaShoppingCart />} label="Market" />
+            <NavIcon to="/inbox" icon={<FaEnvelope />} label="Inbox" unreadCount={totalUnreadCount} />
+            <NavIcon to="/notifications" icon={<FaBell />} label="Notifications" />
             <NavIcon to="/profile" image={user.profilepic} label="Profile" />
 
-            {/* ✅ Desktop Logout button */}
             <button
               onClick={handleLogout}
               className="flex flex-col items-center text-gray-700 hover:text-red-600 transition-transform duration-300 hover:scale-105"
             >
               <FaSignOutAlt className="text-xl md:text-2xl lg:text-xl" />
-              <span className="text-[10px] md:text-[11px] lg:text-[10px]">
-                Logout
-              </span>
+              <span className="text-[10px] md:text-[11px] lg:text-[10px]">Logout</span>
             </button>
           </nav>
         </div>
       </header>
 
+      {/* Mobile Logout button */}
       {location.pathname === "/profile" && (
         <div className="md:hidden fixed bottom-16 right-4 z-50">
           <button
@@ -165,11 +145,7 @@ const NavIcon = ({ to, icon, label, unreadCount, image }) => (
   >
     <div className="relative">
       {image ? (
-        <img
-          src={image}
-          alt="Profile"
-          className="w-9 h-9 md:w-10 md:h-10 rounded-full object-cover border"
-        />
+        <img src={image} alt="Profile" className="w-9 h-9 md:w-10 md:h-10 rounded-full object-cover border" />
       ) : (
         <div className="text-xl md:text-2xl lg:text-xl">{icon}</div>
       )}
