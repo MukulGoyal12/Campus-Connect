@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 const ProfileCard = ({ user, fetchUser, showChangePhoto }) => {
   const fileInputRef = useRef(null);
   const [showModal, setShowModal] = useState(false);
-  const [image,setImage] = useState(user.user.profilepic);
+  const [image, setImage] = useState(user.user.profilepic);
 
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files[0];
@@ -20,26 +20,26 @@ const ProfileCard = ({ user, fetchUser, showChangePhoto }) => {
         toast.warn("Please select an image file.");
         return;
       }
-      const response=await axios
-      .post(`${import.meta.env.VITE_API}/api/upload`, formData,{
-        withCredentials:true,
-        headers: {
-          Authorization: "Bearer " + localStorage.getItem("token"),
-          "Content-Type": "multipart/form-data",
-
-        },
-
-      });
-      setImage(response.data.profilepic)
+      const response = await axios.post(
+        `${import.meta.env.VITE_API}/api/upload`,
+        formData,
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      setImage(response.data.profilepic);
       // fetchUser();
-      
     } catch (err) {
       console.error("Upload error:", err);
     }
   };
-  useEffect(()=>{
-    handleFileChange()
-  },[image])
+  useEffect(() => {
+    handleFileChange();
+  }, [image]);
 
   const handleImageClick = () => setShowModal(true);
   const handleChangePhotoClick = () => fileInputRef.current.click();
@@ -65,7 +65,9 @@ const ProfileCard = ({ user, fetchUser, showChangePhoto }) => {
             )}
           </div>
 
-          <h2 className="text-xl font-bold text-gray-800 mt-2">{user?.user?.name}</h2>
+          <h2 className="text-xl font-bold text-gray-800 mt-2">
+            {user?.user?.name}
+          </h2>
           <p className="text-gray-500 text-sm">{user?.user?.email}</p>
 
           {showChangePhoto && (
@@ -78,11 +80,31 @@ const ProfileCard = ({ user, fetchUser, showChangePhoto }) => {
             </button>
           )}
 
-          {/* ✅ Message button */}
           {!showChangePhoto && user?.user?._id && (
             <Link
               to={`/inbox?to=${user.user._id}`}
               className="mt-3 inline-flex items-center gap-2 text-sm px-3 py-1.5 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition"
+              onClick={async () => {
+                try {
+                  const currentUserId = localStorage.getItem("token");
+                  if (user.user._id !== currentUserId) {
+                    await axios.post(
+                      `${import.meta.env.VITE_API}/api/relevantUsers`,
+                      { userId: user.user._id },
+                      {
+                        withCredentials: true,
+                        headers: {
+                          Authorization:
+                            "Bearer " + localStorage.getItem("token"),
+                          "Content-Type": "application/json",
+                        },
+                      }
+                    );
+                  }
+                } catch (err) {
+                  console.error("Error adding to relevant users:", err);
+                }
+              }}
             >
               <FiMessageSquare size={16} />
               Message
@@ -91,9 +113,21 @@ const ProfileCard = ({ user, fetchUser, showChangePhoto }) => {
         </div>
 
         <div className="space-y-2 text-sm text-gray-700 mt-2">
-          <p>🎓 <span className="font-medium">Year:</span> {user?.user?.year}</p>
-          <p>🏠 <span className="font-medium">Accomodation:</span> {user?.user?.Accomodation ? "College Student" : "External/FreeLancer"}</p>
-          <p>📅 <span className="font-medium">Joined On:</span> {user?.user?.createdAt ? format(new Date(user.user.createdAt), 'dd MMM yyyy') : "N/A"}</p>
+          <p>
+            🎓 <span className="font-medium">Year:</span> {user?.user?.year}
+          </p>
+          <p>
+            🏠 <span className="font-medium">Accomodation:</span>{" "}
+            {user?.user?.Accomodation
+              ? "College Student"
+              : "External/FreeLancer"}
+          </p>
+          <p>
+            📅 <span className="font-medium">Joined On:</span>{" "}
+            {user?.user?.createdAt
+              ? format(new Date(user.user.createdAt), "dd MMM yyyy")
+              : "N/A"}
+          </p>
         </div>
       </div>
 
@@ -110,7 +144,9 @@ const ProfileCard = ({ user, fetchUser, showChangePhoto }) => {
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
           <div className="relative">
             <img
-              src={`${import.meta.env.VITE_API}/images/uploads/${user?.user?.profilepic}`}
+              src={`${import.meta.env.VITE_API}/images/uploads/${
+                user?.user?.profilepic
+              }`}
               alt="Full Profile"
               className="w-72 h-72 md:w-80 md:h-80 rounded-full object-cover border-4 border-white shadow-2xl transition"
             />

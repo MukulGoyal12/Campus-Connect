@@ -33,7 +33,22 @@ function MarketCard({ listings }) {
           Authorization: "Bearer " + localStorage.getItem("token"),
           "Content-Type": "application/json",
         },
-      })
+      });
+
+      if (currentUserId !== item.seller._id) {
+        await axios.post(
+          `${import.meta.env.VITE_API}/api/relevantUsers`,
+          { userId: item.seller._id },
+          {
+            withCredentials: true,
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("token"),
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      }
+      
     } catch (err) {
       if (err.response && err.response.data) {
         toast.error(

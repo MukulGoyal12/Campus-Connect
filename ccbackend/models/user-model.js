@@ -41,6 +41,12 @@ const UserSchema = new mongoose.Schema(
         ref: "Request",
       },
     ],
+    relevantUsers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      }
+    ],
     verified: { 
       type: Boolean, 
       default: false 

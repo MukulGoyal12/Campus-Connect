@@ -54,6 +54,20 @@ const RequestCard = ({ user, fetchUser, showDelete = true }) => {
         }
       );
 
+      if (request.requester._id !== user.user._id) {
+        await axios.post(
+          `${import.meta.env.VITE_API}/api/relevantUsers`,
+          { userId: request.requester._id },
+          {
+            withCredentials: true,
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("token"),
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      }
+
       socket.emit("send_message", {
         senderId: user.user._id,
         receiverId: request.requester._id,

@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken'
 import { deleteFile } from "../utils/deleteFile.js";
 import cloudinary from "../utils/cloudinary.js";
 import sendMail from "../utils/sendMail.js";
+import RequestModel from "../models/request-model.js";
 
 function capitalizeFirstAndLastWord(str) {
   if (!str) return "";
@@ -115,7 +116,7 @@ export async function login(req, res) {
         const token =  generateToken({email:user.email, id:user._id});
         console.log("inside login route",token);
         
-        return res.status(200).json({message:"Login Succesful",token:token});
+        return res.status(200).json({message:"Login Succesful",token:token, user:user});
       } else {
         return res.status(401).send("Invalid credentials");
       }
@@ -228,3 +229,31 @@ export async function getAllUsers(req, res) {
     return res.status(500).json({ message: err.message });
   }
 }
+
+export const relevantUsers = async (req, res) => {
+  try {
+    const currentUserId = req.user._id;
+    const { userId } = req.body;
+
+    if (!userId) return res.status(400).json({ message: "UserId required" });
+
+    // Prevent adding self
+    if (userId === currentUserId.toString()) {
+      return res.status(400).json({ message: "You cannot add yourself" });
+    }
+
+    const user = await userModel.findById(currentUserId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (!user.relevantUsers) user.relevantUsers = [];
+    if (!user.relevantUsers.includes(userId)) {
+      user.relevantUsers.push(userId);
+      await user.save();
+    }
+
+    res.status(200).json({ message: "User added to relevant users", user: user.relevantUsers });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};

@@ -38,6 +38,18 @@ function HomeRequestCard({ requests }) {
 
       })
 
+      await axios.post(
+        `${import.meta.env.VITE_API}/api/relevantUsers`,
+        { userId: request.requester._id },
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
       socket.emit("send_message", {
         senderId: currentUserId,
         receiverId: request.requester._id,
