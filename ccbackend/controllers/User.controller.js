@@ -105,7 +105,7 @@ export async function login(req, res) {
       return res.status(404).send("User not found");
     }
     if(!user.verified) {
-      return res.status(401).send("Please verify your email before logging in");
+      return res.status(401).json({message:"Please verify your email before logging in."});
     }
 
 
