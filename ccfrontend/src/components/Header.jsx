@@ -110,7 +110,7 @@ const Header = () => {
           {/* ✅ Logo remains */}
           <Logo />
 
-          {/* ✅ Desktop-only nav (mobile handled via MobileFooter) */}
+          {/* ✅ Desktop nav */}
           <nav className="hidden md:flex items-center gap-4 lg:gap-5">
             <NavIcon to="/home" icon={<FaHome />} label="Home" />
             <NavIcon
@@ -130,11 +130,21 @@ const Header = () => {
               label="Notifications"
             />
             <NavIcon to="/profile" image={user.profilepic} label="Profile" />
+
+            {/* ✅ Desktop Logout button */}
+            <button
+              onClick={handleLogout}
+              className="flex flex-col items-center text-gray-700 hover:text-red-600 transition-transform duration-300 hover:scale-105"
+            >
+              <FaSignOutAlt className="text-xl md:text-2xl lg:text-xl" />
+              <span className="text-[10px] md:text-[11px] lg:text-[10px]">
+                Logout
+              </span>
+            </button>
           </nav>
         </div>
       </header>
 
-      {/* ✅ Mobile-only logout button (sirf Profile page pe) */}
       {location.pathname === "/profile" && (
         <div className="md:hidden fixed bottom-16 right-4 z-50">
           <button

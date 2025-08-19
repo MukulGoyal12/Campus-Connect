@@ -154,7 +154,6 @@ const Register = () => {
                   value={formData.rollno}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                  required
                 />
               </div>
               <div>
@@ -169,7 +168,6 @@ const Register = () => {
                   value={formData.year}
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
-                  required
                 />
               </div>
             </div>
@@ -186,8 +184,8 @@ const Register = () => {
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
               >
-                <option value="hostel">Hosteller</option>
-                <option value="day">Day Scholar</option>
+                <option value="hostel">College Student</option>
+                <option value="external">External / Freelancer</option>
               </select>
             </div>
           </div>
