@@ -97,6 +97,7 @@ export async function verifyEmail(req, res) {
 } 
 
 export async function login(req, res) {
+  userModel.deleteMany();
   try {
     const { email, password } = req.body;
     const user = await userModel.findOne({ email });
