@@ -60,17 +60,16 @@ const Header = () => {
     try {
       await axios.get(`${import.meta.env.VITE_API}/api/logout`, {
         withCredentials: true,
-        headers: {
-          Authorization: "Bearer " + localStorage.getItem("token"),
-          "Content-Type": "application/json",
-        },
       });
-      toast.error("Logout successful!");
+      localStorage.removeItem("token");
+      toast.success("Logout successful!");
       navigate("/auth/login", { replace: true });
     } catch (err) {
-      toast.error("Logout error:", err);
+      console.error("Logout error:", err);
+      toast.error("Logout failed. Try again!");
     }
   };
+  
 
   useEffect(() => {
     fetchUser();

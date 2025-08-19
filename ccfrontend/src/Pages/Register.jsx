@@ -35,7 +35,6 @@ const Register = () => {
           },
         }
       );
-      // console.log(res);
 
       if (
         res.status === 200 &&
@@ -62,6 +61,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex">
+      {/* Left Side Image */}
       <div className="hidden md:flex w-1/2 bg-blue-900">
         <div
           className="w-full h-full bg-cover bg-center"
@@ -81,7 +81,7 @@ const Register = () => {
         </div>
       </div>
 
-      {/* Form */}
+      {/* Right Side Form */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-6">
         <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6">
           <div className="text-center">
@@ -90,6 +90,7 @@ const Register = () => {
           </div>
 
           <div className="space-y-4">
+            {/* Name */}
             <div>
               <label
                 htmlFor="name"
@@ -187,8 +188,12 @@ const Register = () => {
               </div>
             </div>
 
+            {/* Accommodation */}
             <div>
-              <label htmlFor="Accomodation" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="Accomodation"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Accommodation Type <span className="text-red-500">*</span>
               </label>
               <select
@@ -202,6 +207,7 @@ const Register = () => {
                 <option value="College Student">College Student</option>
                 <option value="External/Freelancer">External / Freelancer</option>
               </select>
+            </div>
           </div>
 
           {/* Submit */}
