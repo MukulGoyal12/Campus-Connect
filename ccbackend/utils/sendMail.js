@@ -19,7 +19,7 @@ async function sendMail({ mailToken, email }) {
       html: `
         <h3>Email Verification</h3>
         <p>Click the button below to verify your email:</p>
-        <a href="${process.env.VITE_FRONTEND_URL}/api/verify-email?token=${mailToken}&email=${email}"
+        <a href="https://campus-connect-6bkk.onrender.com/api/verify-email?token=${mailToken}&email=${email}"
             style="padding: 10px 20px; background-color: #4CAF50; color: white; 
                     text-decoration: none; border-radius: 5px;">
             Verify Email
