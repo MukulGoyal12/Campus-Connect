@@ -1,0 +1,37 @@
+import nodemailer from "nodemailer";
+
+async function sendMail({ mailToken, email }) {
+  try {
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    let info = await transporter.sendMail({
+      from: '"Mukul Goyal" <mukulgoyal756@gmail.com>',
+      to: email,
+      subject: "Verify Your Email",
+      html: `
+        <h3>Email Verification</h3>
+        <p>Click the button below to verify your email:</p>
+        <a href="${process.env.VITE_FRONTEND_URL}/api/verify-email?token=${mailToken}&email=${email}"
+            style="padding: 10px 20px; background-color: #4CAF50; color: white; 
+                    text-decoration: none; border-radius: 5px;">
+            Verify Email
+        </a>
+      `,
+    });
+
+    return true;
+  } catch (err) {
+    console.error("Mail sending error:", err);
+    return false;
+  }
+}
+
+export default sendMail;

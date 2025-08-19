@@ -13,38 +13,54 @@ const Register = () => {
     hosteller: "hostel",
   });
 
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const navigate = useNavigate();
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    axios
-      .post(`${import.meta.env.VITE_API}/api/register`,formData ,{
-        withCredentials: true,
-        headers: {
-          Authorization: "Bearer " + localStorage.getItem("token"),
-          "Content-Type": "application/json",
-        },
-      })
+    setLoading(true);
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_API}/api/register`,
+        formData,
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      .then((res) => {
-        toast.success("Register Successfully. Please Login to continue")
-        navigate("/auth/login");
-      })
-      .catch((err) => {
-        toast.error(
-          err.response && err.response.data
-            ? err.response.data.message 
-            : "Something went wrong. Please try again."
+      // ✅ Mail successfully sent
+      if (res.status === 200 && res.data.message.includes("User registered successfully")) {
+        toast.success(
+          "Registered successfully! Please check your email to verify your account."
         );
-      });
+        navigate("/auth/login");
+      } else {
+        toast.error(res.data.message || "Something went wrong. Please try again.");
+      }
+
+    } catch (err) {
+      console.error(err);
+      toast.error(
+        err.response && err.response.data
+          ? err.response.data.message
+          : "Something went wrong. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex">
+      {/* Left Image */}
       <div className="hidden md:flex w-1/2 bg-blue-900">
         <div
           className="w-full h-full bg-cover bg-center"
@@ -64,6 +80,7 @@ const Register = () => {
         </div>
       </div>
 
+      {/* Form */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-6">
         <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6">
           <div className="text-center">
@@ -72,11 +89,9 @@ const Register = () => {
           </div>
 
           <div className="space-y-4">
+            {/* Name */}
             <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                 Full Name
               </label>
               <input
@@ -91,11 +106,9 @@ const Register = () => {
               />
             </div>
 
+            {/* Email */}
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                 University Email
               </label>
               <input
@@ -110,11 +123,9 @@ const Register = () => {
               />
             </div>
 
+            {/* Password */}
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                 Password
               </label>
               <input
@@ -129,12 +140,10 @@ const Register = () => {
               />
             </div>
 
+            {/* Rollno & Year */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label
-                  htmlFor="rollno"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <label htmlFor="rollno" className="block text-sm font-medium text-gray-700 mb-1">
                   Roll Number
                 </label>
                 <input
@@ -148,12 +157,8 @@ const Register = () => {
                   required
                 />
               </div>
-
               <div>
-                <label
-                  htmlFor="year"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <label htmlFor="year" className="block text-sm font-medium text-gray-700 mb-1">
                   Year
                 </label>
                 <input
@@ -169,11 +174,9 @@ const Register = () => {
               </div>
             </div>
 
+            {/* Hosteller / Day Scholar */}
             <div>
-              <label
-                htmlFor="hosteller"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="hosteller" className="block text-sm font-medium text-gray-700 mb-1">
                 Accommodation Type
               </label>
               <select
@@ -189,19 +192,21 @@ const Register = () => {
             </div>
           </div>
 
+          {/* Submit */}
           <button
             type="submit"
-            className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+            disabled={loading}
+            className={`w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm ${
+              loading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
-            Create Account
+            {loading ? "Registering..." : "Create Account"}
           </button>
 
+          {/* Login Link */}
           <p className="text-center text-sm text-gray-500">
             Already have an account?{" "}
-            <Link
-              to="/auth/login"
-              className="font-medium text-blue-600 hover:text-blue-500 hover:underline"
-            >
+            <Link to="/auth/login" className="font-medium text-blue-600 hover:text-blue-500 hover:underline">
               Sign in
             </Link>
           </p>

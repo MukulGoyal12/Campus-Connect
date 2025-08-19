@@ -2,8 +2,10 @@ import bcrypt from "bcryptjs";
 import userModel from "../models/user-model.js";
 import { generateToken } from "../utils/generateTokens.js";
 import { hashedPassword } from "../utils/hashPassword.js";
+import jwt from 'jsonwebtoken'
 import { deleteFile } from "../utils/deleteFile.js";
 import cloudinary from "../utils/cloudinary.js";
+import sendMail from "../utils/sendMail.js";
 
 function capitalizeFirstAndLastWord(str) {
   if (!str) return "";
@@ -31,6 +33,13 @@ export async function register(req, res) {
       return res.status(500).send("User already exists");
     }
 
+    const mailToken= generateToken({email});
+    const mailSent = await sendMail({ mailToken, email });
+
+    if (!mailSent) {
+      return res.status(500).json({ message: "Please provide valid E-Mail" });
+    }
+
     const hash = await hashedPassword(password);
 
     const formattedName = capitalizeFirstAndLastWord(name);
@@ -45,15 +54,47 @@ export async function register(req, res) {
       profilepic: "default.jpeg",
     });
 
-    const token = generateToken(user);
+    const token = generateToken({email:user.email, id:user._id});
 
     res.cookie("token", token);
 
     res.status(200).json({"message":"User registered successfully" , "user":user});
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: err.message });
   }
 }
+
+export async function verifyEmail(req, res) {
+  try {
+    const { token, email } = req.query;
+    if (!token || !email) {
+      return res.status(400).json({ message: "Invalid verification link" });
+    }
+
+    const decoded = jwt.verify(token,process.env.JWT_KEY)
+    if (!decoded || decoded.email !== email) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.verified) {
+      return res.status(200).json({ message: "Email already verified" });
+    }
+
+    user.verified = true;
+    await user.save();
+
+    res.status(200).json({ message: "Email verified successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+} 
 
 export async function login(req, res) {
   try {
@@ -68,7 +109,7 @@ export async function login(req, res) {
     bcrypt.compare(password, user.password, (err, result) => {
       if (err) return res.status(500).send("Error comparing passwords");
       if (result) {
-        const token =  generateToken(user);
+        const token =  generateToken({email:user.email, id:user._id});
         console.log("inside login route",token);
         
         return res.status(200).json({message:"Login Succesful",token:token});
@@ -92,8 +133,7 @@ export async function logout(req, res) {
 
 export async function fetchUser(req, res) {
   try {
-    console.log();
-    
+   
     const user = await userModel
       .findOne({ email: req.user.email })
       .populate("request");

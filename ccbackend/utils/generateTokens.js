@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
 
-export function generateToken(user){
-    return  jwt.sign({email:user.email , id:user._id},process.env.JWT_KEY);
+export function generateToken({email,id}){
+    return  jwt.sign({email,id},process.env.JWT_KEY);
 }

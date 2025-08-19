@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import { Link, useNavigate } from "react-router-dom";
 import { useSocket } from "../provider/SocketProvider";
 import { FaCheck } from "react-icons/fa";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 function HomeRequestCard({ requests }) {
   const [currentUserId, setCurrentUserId] = useState("");
@@ -65,7 +65,6 @@ function HomeRequestCard({ requests }) {
       <h1 className="text-lg sm:text-2xl font-bold text-gray-800 mb-4">
         📌 Latest Requests
       </h1>
-      <ToastContainer/>
 
       {requests.length === 0 ? (
         <p className="text-gray-500 text-center">No requests available yet.</p>

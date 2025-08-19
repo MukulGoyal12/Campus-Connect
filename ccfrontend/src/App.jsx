@@ -4,7 +4,7 @@ import HeaderSimple from "./components/HeaderSimple";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import MobileFooter from "./components/MobileFooter ";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify"; 
 import "react-toastify/dist/ReactToastify.css";
 
 function App() {

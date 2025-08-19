@@ -11,6 +11,7 @@ const isLoggedIn = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_KEY);
+console.log(decoded);
 
     const user = await UserModel.findOne({ email: decoded.email }).select("-password");
     if (!user) {

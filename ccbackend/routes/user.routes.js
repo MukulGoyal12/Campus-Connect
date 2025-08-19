@@ -1,6 +1,7 @@
-import { fetchUser, getAllUsers, getUserById, login, logout, register, uploadImage } from "../controllers/User.controller.js";
+import { fetchUser, verifyEmail, getAllUsers, getUserById, login, logout, register, uploadImage } from "../controllers/User.controller.js";
 import isLoggedIn from "../middleware/isLoggedIn.js";
 import upload from "../utils/multerconfig.js";
+import sendMail from "../utils/sendMail.js";
 
 export function userRoutes(app){
     app.post("/api/register", register );
@@ -10,4 +11,5 @@ export function userRoutes(app){
     app.post('/api/upload',upload.single("image"),isLoggedIn, uploadImage);
     app.get('/api/user/:id',isLoggedIn, getUserById);
     app.get('/api/users',isLoggedIn, getAllUsers);
+    app.get("/api/verify-email", verifyEmail);
 }

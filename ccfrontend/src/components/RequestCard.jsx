@@ -29,7 +29,6 @@ const RequestCard = ({ user, fetchUser, showDelete = true }) => {
               toast.error("Request deleted successfully!");
               fetchUser();
             } catch (err) {
-              console.error("Delete error:", err);
               toast.error("Something went wrong while deleting.");
             }
           },
