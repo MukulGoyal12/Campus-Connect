@@ -19,15 +19,13 @@ const UserSchema = new mongoose.Schema(
     },
     rollno: {
       type: String,
-      required: true,
     },
     year: {
       type: String,
-      required: true,
     },
-    hosteller: {
+    Accomodation: {
       type: String,
-      enum: ["hostel", "day"],
+      enum: ["College Student", "External / Freelancer"],
       required: true,
     },
     profilepic: { type: String, default: "default.jpeg" },

@@ -49,7 +49,7 @@ export async function register(req, res) {
       email,
       rollno,
       year,
-      hosteller,
+      Accomodation,
       password: hash,
       profilepic: "default.jpeg",
     });
