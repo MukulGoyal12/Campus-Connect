@@ -17,19 +17,16 @@ const Header = () => {
   const [totalUnreadCount, setTotalUnreadCount] = useState(0);
   const navigate = useNavigate();
   const socket = useSocket();
-  
 
   const fetchUser = async () => {
     try {
-      const res= await axios
-      .get(`${import.meta.env.VITE_API}/api/user`, {
-        withCredentials:true,
+      const res = await axios.get(`${import.meta.env.VITE_API}/api/user`, {
+        withCredentials: true,
         headers: {
           Authorization: "Bearer " + localStorage.getItem("token"),
           "Content-Type": "application/json",
         },
-
-      })
+      });
       setUser(res.data.user);
     } catch (err) {
       console.error("Fetch user error:", err);
@@ -38,15 +35,16 @@ const Header = () => {
 
   const fetchUnreadCount = async () => {
     try {
-      const response = await axios
-      .get(`${import.meta.env.VITE_API}/api/messages/unread-counts`, {
-        withCredentials:true,
-        headers: {
-          Authorization: "Bearer " + localStorage.getItem("token"),
-          "Content-Type": "application/json",
-        },
-
-      })
+      const response = await axios.get(
+        `${import.meta.env.VITE_API}/api/messages/unread-counts`,
+        {
+          withCredentials: true,
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
       const total = response.data.unreadCounts.reduce(
         (sum, item) => sum + item.count,
         0
@@ -59,15 +57,14 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      await axios
-      .get(`${import.meta.env.VITE_API}/api/logout`, {
-        withCredentials:true,
+      await axios.get(`${import.meta.env.VITE_API}/api/logout`, {
+        withCredentials: true,
         headers: {
           Authorization: "Bearer " + localStorage.getItem("token"),
           "Content-Type": "application/json",
-        }
-      })
-      toast.error("Logout successful!")
+        },
+      });
+      toast.error("Logout successful!");
       navigate("/auth/login", { replace: true });
     } catch (err) {
       toast.error("Logout error:", err);
@@ -106,41 +103,53 @@ const Header = () => {
   }, [socket, user]);
 
   return (
-    <header className="sticky top-0 z-50 bg-white shadow-sm border-b">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-        {/* ✅ Logo remains */}
-        <Logo />
+    <>
+      <header className="sticky top-0 z-50 bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+          {/* ✅ Logo remains */}
+          <Logo />
 
-        {/* ✅ Desktop-only nav (mobile handled via MobileFooter) */}
-        <nav className="hidden md:flex items-center gap-4 lg:gap-5">
-          <NavIcon to="/home" icon={<FaHome />} label="Home" />
-          <NavIcon to="/marketplace" icon={<FaShoppingCart />} label="Market" />
-          <NavIcon
-            to="/inbox"
-            icon={<FaEnvelope />}
-            label="Inbox"
-            unreadCount={totalUnreadCount}
-          />
-          <NavIcon
-            to="/notifications"
-            icon={<FaBell />}
-            label="Notifications"
-          />
-          <NavIcon
-            to="/profile"
-            image={user.profilepic}
-            label="Profile"
-          />
-          <button
-            onClick={handleLogout}
-            className="flex flex-col items-center text-gray-700 hover:text-red-600 transition-transform duration-300 hover:scale-105 hover:rotate-3"
-          >
-            <FaSignOutAlt className="text-2xl" />
-            <span className="text-[11px]">Logout</span>
-          </button>
-        </nav>
+          {/* ✅ Desktop-only nav (mobile handled via MobileFooter) */}
+          <nav className="hidden md:flex items-center gap-4 lg:gap-5">
+            <NavIcon to="/home" icon={<FaHome />} label="Home" />
+            <NavIcon
+              to="/marketplace"
+              icon={<FaShoppingCart />}
+              label="Market"
+            />
+            <NavIcon
+              to="/inbox"
+              icon={<FaEnvelope />}
+              label="Inbox"
+              unreadCount={totalUnreadCount}
+            />
+            <NavIcon
+              to="/notifications"
+              icon={<FaBell />}
+              label="Notifications"
+            />
+            <NavIcon to="/profile" image={user.profilepic} label="Profile" />
+            <button
+              onClick={handleLogout}
+              className="flex flex-col items-center text-gray-700 hover:text-red-600 transition-transform duration-300 hover:scale-105 hover:rotate-3"
+            >
+              <FaSignOutAlt className="text-2xl" />
+              <span className="text-[11px]">Logout</span>
+            </button>
+          </nav>
+        </div>
+      </header>
+
+      {/* ✅ Mobile-only logout button */}
+      <div className="md:hidden fixed bottom-16 right-4 z-50">
+        <button
+          onClick={handleLogout}
+          className="p-3 rounded-full bg-red-500 text-white shadow-lg hover:bg-red-600 transition"
+        >
+          <FaSignOutAlt className="text-2xl" />
+        </button>
       </div>
-    </header>
+    </>
   );
 };
 
