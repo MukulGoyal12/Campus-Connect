@@ -17,25 +17,30 @@ const Inbox = () => {
   const socket = useSocket();
   const { user: currentUser } = APICalling();
 
-  // Fetch all users
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const res = await axios.get(`${import.meta.env.VITE_API}/api/users`, {
+  // Fetch only releavant users
+
+useEffect(() => {
+  const fetchUsers = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_API}/api/users/relevant`,
+        {
           withCredentials: true,
           headers: {
             Authorization: "Bearer " + localStorage.getItem("token"),
             "Content-Type": "application/json",
           },
-        });
-        setUsers(res.data.users);
-        setFilteredUsers(res.data.users); // Initialize filtered users
-      } catch (err) {
-        console.error("Error fetching users:", err);
-      }
-    };
-    fetchUsers();
-  }, []);
+        }
+      );
+      setUsers(res.data.users);
+      setFilteredUsers(res.data.users);
+    } catch (err) {
+      console.error("Error fetching relevant users:", err);
+    }
+  };
+  fetchUsers();
+}, [currentUser]);
+
 
   // Filter users based on search term
   useEffect(() => {

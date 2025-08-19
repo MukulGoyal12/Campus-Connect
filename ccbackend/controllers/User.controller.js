@@ -251,7 +251,24 @@ export const relevantUsers = async (req, res) => {
       await user.save();
     }
 
-    res.status(200).json({ message: "User added to relevant users", user: user.relevantUsers });
+    res.status(200).json({ message: "User added to relevant users", relevantUsers: user.relevantUsers });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+
+export const getRelevantUsers = async (req, res) => {
+  try {
+    const currentUser = await userModel.findById(req.user._id);
+    if (!currentUser) return res.status(404).json({ message: "User not found" });
+
+    const users = await userModel.find({
+      _id: { $in: currentUser.relevantUsers || [] }
+    }).select("_id name email profilepic");
+
+    res.status(200).json({ users });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Something went wrong" });
