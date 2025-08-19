@@ -54,11 +54,6 @@ function App() {
 
       {showFooter && <MobileFooter unreadCount={unreadCount} />}
 
-      <button onClick={()=>{
-        Navigate("/home");
-      }}>
-        Go to Home
-      </button>
 
       <ToastContainer
         position="top-right"
