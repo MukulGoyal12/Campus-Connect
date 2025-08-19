@@ -100,11 +100,14 @@ export async function login(req, res) {
   try {
     const { email, password } = req.body;
     const user = await userModel.findOne({ email });
-    console.log(email+" "+password);
     
     if (!user) {
       return res.status(404).send("User not found");
     }
+    if(!user.verified) {
+      return res.status(401).send("Please verify your email before logging in");
+    }
+
 
     bcrypt.compare(password, user.password, (err, result) => {
       if (err) return res.status(500).send("Error comparing passwords");

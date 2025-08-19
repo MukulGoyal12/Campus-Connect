@@ -35,6 +35,8 @@ const Register = () => {
           },
         }
       );
+      console.log(res);
+      
 
       // ✅ Mail successfully sent
       if (res.status === 200 && res.data.message.includes("User registered successfully")) {
