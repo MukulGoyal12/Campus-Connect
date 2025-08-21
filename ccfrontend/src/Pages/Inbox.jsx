@@ -57,62 +57,59 @@ const Inbox = () => {
   // Fetch unread message counts
   useEffect(() => {
     if (!socket) return;
-
+  
     const handleReceive = async (message) => {
-      // Agar sender khud ka hai, ignore karo
       if (message.sender === currentUser.user._id) return;
-
       message.sender = message.sender || message.senderId;
-
-      // Check if message already exists (by temporary ID)
-      const messageExists = messages.some(
-        (msg) => msg.tempId === message.tempId
-      );
-
-      if (!messageExists) {
+  
+      setMessages((prevMessages) => {
+        const messageExists = prevMessages.some(
+          (msg) => msg.tempId === message.tempId
+        );
+        if (messageExists) return prevMessages;
+  
         if (
           selectedUser &&
           (message.sender === selectedUser._id ||
             message.receiver === selectedUser._id)
         ) {
-          setMessages((prev) => [...prev, message]);
-
-          if (message.sender === selectedUser._id) {
-            await axios.put(
-              `${import.meta.env.VITE_API}/api/messages/mark-read/${selectedUser._id}`,
-              {},
-              {
-                withCredentials: true,
-                headers: {
-                  Authorization: "Bearer " + localStorage.getItem("token"),
-                  "Content-Type": "application/json",
-                },
-              }
-            );
-          }
+          axios.put(
+            `${import.meta.env.VITE_API}/api/messages/mark-read/${selectedUser._id}`,
+            {},
+            {
+              withCredentials: true,
+              headers: {
+                Authorization: "Bearer " + localStorage.getItem("token"),
+                "Content-Type": "application/json",
+              },
+            }
+          ).catch(err => console.error(err));
+  
+          return [...prevMessages, message];
         } else {
           setUnreadCounts((prev) => ({
             ...prev,
             [message.sender]: (prev[message.sender] || 0) + 1,
           }));
+          return prevMessages;
         }
-      }
+      });
     };
-
+  
     socket.on("receive_message", handleReceive);
-
     socket.on("unread_count_update", (data) => {
       setUnreadCounts((prev) => ({
         ...prev,
         [data.senderId]: data.count,
       }));
     });
-
+  
     return () => {
       socket.off("receive_message", handleReceive);
       socket.off("unread_count_update");
     };
-  }, [socket, selectedUser, currentUser, messages]); // messages ko bhi add kiya
+  }, [socket, selectedUser, currentUser]); // messages hata do yaha
+  
 
   // Fetch chat messages
   useEffect(() => {
