@@ -58,52 +58,18 @@ useEffect(() => {
 
   // Fetch unread message counts
   useEffect(() => {
-    const fetchUnreadCounts = async () => {
-      try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API}/api/messages/unread-counts`,
-          {
-            withCredentials: true,
-            headers: {
-              Authorization: "Bearer " + localStorage.getItem("token"),
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        const counts = {};
-        res.data.unreadCounts.forEach((item) => {
-          counts[item._id] = item.count;
-        });
-        setUnreadCounts(counts);
-      } catch (err) {
-        console.error("Error fetching unread counts:", err);
-      }
-    };
-    if (currentUser) fetchUnreadCounts();
-  }, [currentUser]);
-
-  // Socket join room
-  useEffect(() => {
-    if (currentUser && socket) {
-      socket.emit("join_room", currentUser._id);
-    }
-  }, [currentUser, socket]);
-
-  // Receive message via socket
-  useEffect(() => {
     if (!socket) return;
-
+  
     const handleReceive = async (message) => {
-      // Ensure message.sender exists
       message.sender = message.sender || message.senderId;
-    
+  
       if (
         selectedUser &&
         (message.sender === selectedUser._id ||
           message.receiver === selectedUser._id)
       ) {
         setMessages((prev) => [...prev, message]);
-    
+  
         if (message.sender === selectedUser._id) {
           await axios.put(
             `${import.meta.env.VITE_API}/api/messages/mark-read/${selectedUser._id}`,
@@ -124,21 +90,22 @@ useEffect(() => {
         }));
       }
     };
-    
-
+  
     socket.on("receive_message", handleReceive);
+  
     socket.on("unread_count_update", (data) => {
       setUnreadCounts((prev) => ({
         ...prev,
         [data.senderId]: data.count,
       }));
     });
-
+  
     return () => {
       socket.off("receive_message", handleReceive);
       socket.off("unread_count_update");
     };
-  }, [socket, selectedUser, currentUser]);
+  }, [socket]);   // <-- sirf socket dependency rakho, selectedUser/currentUser hata do
+  
 
   // Fetch chat messages
   useEffect(() => {
@@ -216,7 +183,7 @@ useEffect(() => {
           _id: Date.now().toString(),
           createdAt: new Date(),
         },
-      ]);
+      ]);      
       setNewMessage("");
     } catch (err) {
       console.error("Error sending message:", err);
