@@ -6,7 +6,6 @@ import jwt from 'jsonwebtoken'
 import { deleteFile } from "../utils/deleteFile.js";
 import cloudinary from "../utils/cloudinary.js";
 import sendMail from "../utils/sendMail.js";
-import RequestModel from "../models/request-model.js";
 
 function capitalizeFirstAndLastWord(str) {
   if (!str) return "";
@@ -98,6 +97,7 @@ export async function verifyEmail(req, res) {
 } 
 
 export async function login(req, res) {
+
   try {
     const { email, password } = req.body;
     const user = await userModel.findOne({ email });

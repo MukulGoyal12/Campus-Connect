@@ -118,10 +118,11 @@ const ProfileCard = ({ user, fetchUser, showChangePhoto }) => {
           </p>
           <p>
             🏠 <span className="font-medium">Accomodation:</span>{" "}
-            {user?.user?.Accomodation
+            {user?.user?.Accomodation === "College Student"
               ? "College Student"
-              : "External/FreeLancer"}
+              : "External / Freelancer"}
           </p>
+
           <p>
             📅 <span className="font-medium">Joined On:</span>{" "}
             {user?.user?.createdAt
