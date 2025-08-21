@@ -242,22 +242,38 @@ export const relevantUsers = async (req, res) => {
       return res.status(400).json({ message: "You cannot add yourself" });
     }
 
-    const user = await userModel.findById(currentUserId);
-    if (!user) return res.status(404).json({ message: "User not found" });
+    const currentUser = await userModel.findById(currentUserId);
+    const otherUser = await userModel.findById(userId);
 
-    if (!user.relevantUsers) user.relevantUsers = [];
-    if (!user.relevantUsers.includes(userId)) {
-      user.relevantUsers.push(userId);
-      await user.save();
+    if (!currentUser || !otherUser) {
+      return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json({ message: "User added to relevant users", relevantUsers: user.relevantUsers });
+    // Initialize arrays if null
+    if (!currentUser.relevantUsers) currentUser.relevantUsers = [];
+    if (!otherUser.relevantUsers) otherUser.relevantUsers = [];
+
+    // Add otherUser to currentUser
+    if (!currentUser.relevantUsers.includes(userId)) {
+      currentUser.relevantUsers.push(userId);
+      await currentUser.save();
+    }
+
+    // Add currentUser to otherUser
+    if (!otherUser.relevantUsers.includes(currentUserId.toString())) {
+      otherUser.relevantUsers.push(currentUserId.toString());
+      await otherUser.save();
+    }
+
+    res.status(200).json({
+      message: "Users added to each other's relevant list",
+      relevantUsers: currentUser.relevantUsers,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Something went wrong" });
   }
 };
-
 
 export const getRelevantUsers = async (req, res) => {
   try {
