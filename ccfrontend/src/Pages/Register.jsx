@@ -40,7 +40,7 @@ const Register = () => {
         res.status === 200 &&
         res.data.message.includes("User registered successfully")
       ) {
-        toast.info("Please check your email to verify your account.");
+        toast.info("Please check your email to verify your account. Please wait for a while");
         navigate("/auth/login");
       } else {
         toast.error(
