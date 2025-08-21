@@ -17,30 +17,28 @@ const Inbox = () => {
   const socket = useSocket();
   const { user: currentUser } = APICalling();
 
-  // Fetch only releavant users
-
-useEffect(() => {
-  const fetchUsers = async () => {
-    try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_API}/api/users/relevant`,
-        {
-          withCredentials: true,
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("token"),
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      setUsers(res.data.users);
-      setFilteredUsers(res.data.users);
-    } catch (err) {
-      console.error("Error fetching relevant users:", err);
-    }
-  };
-  fetchUsers();
-}, [currentUser]);
-
+  // Fetch only relevant users
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await axios.get(
+          `${import.meta.env.VITE_API}/api/users/relevant`,
+          {
+            withCredentials: true,
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("token"),
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        setUsers(res.data.users);
+        setFilteredUsers(res.data.users);
+      } catch (err) {
+        console.error("Error fetching relevant users:", err);
+      }
+    };
+    fetchUsers();
+  }, [currentUser]);
 
   // Filter users based on search term
   useEffect(() => {
@@ -59,53 +57,62 @@ useEffect(() => {
   // Fetch unread message counts
   useEffect(() => {
     if (!socket) return;
-  
+
     const handleReceive = async (message) => {
+      // Agar sender khud ka hai, ignore karo
+      if (message.sender === currentUser.user._id) return;
+
       message.sender = message.sender || message.senderId;
-  
-      if (
-        selectedUser &&
-        (message.sender === selectedUser._id ||
-          message.receiver === selectedUser._id)
-      ) {
-        setMessages((prev) => [...prev, message]);
-  
-        if (message.sender === selectedUser._id) {
-          await axios.put(
-            `${import.meta.env.VITE_API}/api/messages/mark-read/${selectedUser._id}`,
-            {},
-            {
-              withCredentials: true,
-              headers: {
-                Authorization: "Bearer " + localStorage.getItem("token"),
-                "Content-Type": "application/json",
-              },
-            }
-          );
+
+      // Check if message already exists (by temporary ID)
+      const messageExists = messages.some(
+        (msg) => msg.tempId === message.tempId
+      );
+
+      if (!messageExists) {
+        if (
+          selectedUser &&
+          (message.sender === selectedUser._id ||
+            message.receiver === selectedUser._id)
+        ) {
+          setMessages((prev) => [...prev, message]);
+
+          if (message.sender === selectedUser._id) {
+            await axios.put(
+              `${import.meta.env.VITE_API}/api/messages/mark-read/${selectedUser._id}`,
+              {},
+              {
+                withCredentials: true,
+                headers: {
+                  Authorization: "Bearer " + localStorage.getItem("token"),
+                  "Content-Type": "application/json",
+                },
+              }
+            );
+          }
+        } else {
+          setUnreadCounts((prev) => ({
+            ...prev,
+            [message.sender]: (prev[message.sender] || 0) + 1,
+          }));
         }
-      } else {
-        setUnreadCounts((prev) => ({
-          ...prev,
-          [message.sender]: (prev[message.sender] || 0) + 1,
-        }));
       }
     };
-  
+
     socket.on("receive_message", handleReceive);
-  
+
     socket.on("unread_count_update", (data) => {
       setUnreadCounts((prev) => ({
         ...prev,
         [data.senderId]: data.count,
       }));
     });
-  
+
     return () => {
       socket.off("receive_message", handleReceive);
       socket.off("unread_count_update");
     };
-  }, [socket]);   // <-- sirf socket dependency rakho, selectedUser/currentUser hata do
-  
+  }, [socket, selectedUser, currentUser, messages]); // messages ko bhi add kiya
 
   // Fetch chat messages
   useEffect(() => {
@@ -166,30 +173,37 @@ useEffect(() => {
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !selectedUser || !currentUser) return;
-  
+
+    // Temporary ID banaye taaki baad mein identify kar sakein
+    const tempId = Date.now().toString();
+    
     const msg = {
       senderId: currentUser.user._id,
-      sender: currentUser.user._id,  // <-- add this
+      sender: currentUser.user._id,
       receiverId: selectedUser._id,
       message: newMessage,
+      tempId: tempId, // Temporary ID add karo
     };
-  
+
     try {
-      socket.emit("send_message", msg);
+      // Pehle UI mein message show karo (optimistic update)
       setMessages((prev) => [
         ...prev,
         {
           ...msg,
-          _id: Date.now().toString(),
+          _id: tempId,
           createdAt: new Date(),
         },
-      ]);      
+      ]);
+      
       setNewMessage("");
+      
+      // Phir socket ke through send karo
+      socket.emit("send_message", msg);
     } catch (err) {
       console.error("Error sending message:", err);
     }
   };
-  
 
   const formatTime = (timestamp) =>
     new Date(timestamp).toLocaleTimeString([], {
@@ -303,7 +317,7 @@ useEffect(() => {
               ) : (
                 messages.map((message) => (
                   <div
-                    key={message._id}
+                    key={message._id || message.tempId}
                     className={`flex ${
                       message.sender === currentUser.user._id ? "justify-end" : "justify-start"
                     }`}
