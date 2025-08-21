@@ -63,9 +63,15 @@ const Inbox = () => {
       message.sender = message.sender || message.senderId;
   
       setMessages((prevMessages) => {
+        // Temporary messages ko identify karne ke liye alag approach
         const messageExists = prevMessages.some(
-          (msg) => msg.tempId === message.tempId
+          (msg) => 
+            // Agar temporary message hai toh tempId se check karo
+            (msg.tempId && msg.tempId === message.tempId) || 
+            // Agar permanent message hai toh _id se check karo
+            (msg._id && msg._id === message._id)
         );
+        
         if (messageExists) return prevMessages;
   
         if (
@@ -73,6 +79,7 @@ const Inbox = () => {
           (message.sender === selectedUser._id ||
             message.receiver === selectedUser._id)
         ) {
+          // Background mein mark as read karo, UI block na ho
           axios.put(
             `${import.meta.env.VITE_API}/api/messages/mark-read/${selectedUser._id}`,
             {},
@@ -108,7 +115,7 @@ const Inbox = () => {
       socket.off("receive_message", handleReceive);
       socket.off("unread_count_update");
     };
-  }, [socket, selectedUser, currentUser]); // messages hata do yaha
+  }, [socket, selectedUser, currentUser]);
   
 
   // Fetch chat messages
@@ -188,7 +195,7 @@ const Inbox = () => {
         ...prev,
         {
           ...msg,
-          _id: tempId,
+          _id: tempId, // Temporary ID ko _id bhi banao taaki display ho sake
           createdAt: new Date(),
         },
       ]);
@@ -199,6 +206,8 @@ const Inbox = () => {
       socket.emit("send_message", msg);
     } catch (err) {
       console.error("Error sending message:", err);
+      // Agar error aaya toh temporary message hatao
+      setMessages(prev => prev.filter(m => m._id !== tempId));
     }
   };
 
@@ -314,7 +323,7 @@ const Inbox = () => {
               ) : (
                 messages.map((message) => (
                   <div
-                    key={message._id || message.tempId}
+                    key={message._id}
                     className={`flex ${
                       message.sender === currentUser.user._id ? "justify-end" : "justify-start"
                     }`}
@@ -333,13 +342,12 @@ const Inbox = () => {
                     </div>
                   </div>
                 ))
-                
               )}
               <div ref={messagesEndRef} />
             </div>
 
             {/* Input Fixed */}
-            <div className="bg-white p-3 mb-12  border-t flex items-center space-x-2 sticky bottom-0 z-30 sm:pb-0">
+            <div className="bg-white p-3 mb-12 border-t flex items-center space-x-2 sticky bottom-0 z-30 sm:pb-0">
               <input
                 type="text"
                 value={newMessage}
